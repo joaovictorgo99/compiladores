@@ -22,10 +22,26 @@ void E(void) {
         match(lookahead);
     }
 
-// T -> F { otimes F }
 _T:
-// F -> ( E ) | ID | OCT | HEX | DEC
+    T();
+    if (lookahead == '+' || lookahead == '-') {
+        match(lookahead);
+        goto _T;
+    }
+}
+
+// T -> F { otimes F }
+void T(void) {
 _F:
+    F();
+    if (lookahead == '*' || lookahead == '/') {
+        match(lookahead);
+        goto _F;
+    }
+}
+
+// F -> ( E ) | ID | OCT | HEX | DEC
+void F(void) {
     switch(lookahead) {
         case '(':
             match('(');
@@ -43,16 +59,6 @@ _F:
             break;
         default:
             match(DEC);
-    }
-
-    if (lookahead == '*' || lookahead == '/') {
-        match(lookahead);
-        goto _F;
-    }
-
-    if (lookahead == '+' || lookahead == '-') {
-        match(lookahead);
-        goto _T;
     }
 }
 
