@@ -30,21 +30,41 @@ void T(void) {
 
 // R -> '+' T R | '-' T R | <>
 void R(void) {
-    while (lookahead == '+' || lookahead == '-') {
-        match(lookahead);
-        T();
+    switch(lookahead) {
+        case '+':
+            match('+');
+            T();
+            R();
+            break;
+        case '-':
+            match('-');
+            T();
+            R();
+            break;
+        default:
+            ;
     }
 }
 
 // Q -> '*' F Q | '/' F Q | <>
 void Q(void) {
-    while (lookahead == '*' || lookahead == '/') {
-        match(lookahead);
-        F();
+    switch(lookahead) {
+        case '*':
+            match('*');
+            F();
+            Q();
+            break;
+        case '/':
+            match('/');
+            F();
+            Q();
+            break;
+        default:
+            ;
     }
 }
 
-// F -> ( E ) | ID | DEC | OCT | HEX
+// F -> ( E ) | ID | OCT | HEX | DEC 
 void F(void) {
     switch(lookahead) {
         case '(':
@@ -67,7 +87,7 @@ void F(void) {
 }
 
 void match(int expected) {
-    if(lookahead == expected) {
+    if (lookahead == expected) {
         lookahead = gettoken(source);
     }
     else {
