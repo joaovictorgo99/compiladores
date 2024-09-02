@@ -9,32 +9,42 @@ int lookahead;
 /*
 LL(1) grammar:
 
-E -> [ ominus ] T { oplus T }
-T -> F { otimes F }
+E -> T R
+T -> F Q
+R -> '+' T R | '-' T R | <>
+Q -> '*' F Q | '/' F Q | <>
 F -> ( E ) | ID | OCT | HEX | DEC
-A -> a A | <> ~ A -> { a }
-A -> b | <> ~ A -> [ b ]
 */
 
 // E -> T R
 void E(void) {
     T();
+    R();
+}
+
+//T -> F Q
+void T(void) {
+    F();
+    Q();
+}
+
+// R -> '+' T R | '-' T R | <>
+void R(void) {
     while (lookahead == '+' || lookahead == '-') {
         match(lookahead);
         T();
     }
 }
 
-//T -> F Q
-void T(void) {
-    F();
+// Q -> '*' F Q | '/' F Q | <>
+void Q(void) {
     while (lookahead == '*' || lookahead == '/') {
         match(lookahead);
         F();
     }
 }
 
-// F -> ( E ) | ID | OCT | HEX | DEC
+// F -> ( E ) | ID | DEC | OCT | HEX
 void F(void) {
     switch(lookahead) {
         case '(':
