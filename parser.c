@@ -13,7 +13,7 @@ E -> T R
 T -> F Q
 R -> '+' T R | '-' T R | <>
 Q -> '*' F Q | '/' F Q | <>
-F -> ( E ) | ID | DEC
+F -> ( E ) | ID | OCT | HEX | DEC
 */
 
 // E -> T R
@@ -64,7 +64,7 @@ void Q(void) {
     }
 }
 
-// F -> ( E ) | ID | DEC
+// F -> ( E ) | ID | OCT | HEX | DEC 
 void F(void) {
     switch(lookahead) {
         case '(':
@@ -75,13 +75,19 @@ void F(void) {
         case ID:
             match(ID);
             break;
+        case OCT:
+            match(OCT);
+            break;
+        case HEX:
+            match(HEX);
+            break;
         default:
             match(DEC);
     }
 }
 
 void match(int expected) {
-    if(lookahead == expected) {
+    if (lookahead == expected) {
         lookahead = gettoken(source);
     }
     else {
