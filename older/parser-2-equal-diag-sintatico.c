@@ -16,27 +16,21 @@ A -> a A | <> ~ A -> { a }
 A -> b | <> ~ A -> [ b ]
 */
 
-// E -> [ ominus ] T { oplus T }
+// E -> T R
 void E(void) {
-    if (lookahead == '+' || lookahead == '-') {
-        match(lookahead);
-    }
-
-_T:
     T();
-    if (lookahead == '+' || lookahead == '-') {
+    while (lookahead == '+' || lookahead == '-') {
         match(lookahead);
-        goto _T;
+        T();
     }
 }
 
-// T -> F { otimes F }
+//T -> F Q
 void T(void) {
-_F:
     F();
-    if (lookahead == '*' || lookahead == '/') {
+    while (lookahead == '*' || lookahead == '/') {
         match(lookahead);
-        goto _F;
+        F();
     }
 }
 
