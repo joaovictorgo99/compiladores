@@ -14,7 +14,7 @@ void skipspaces(FILE *tape) {
             linenum++;
     };
 
-    printf("linenum: %d\n", linenum);
+    //printf("linenum: %d\n", linenum);
 
     ungetc(head, tape);
 }
@@ -125,19 +125,19 @@ int gettoken(FILE *source) {
     skipspaces(source);
     
     if ((token = isID(source))) {
-        printf("ID\n");
+        //printf("ID\n");
         return ID;
     }
     else if ((token = isOCT(source))){
-        printf("OCT\n");
+        //printf("OCT\n");
         return OCT;
     }
     else if ((token = isHEX(source))) {
-        printf("HEX\n");
+        //printf("HEX\n");
         return HEX;
     }
     else if ((token = isDEC(source))) {
-        printf("DEC\n");
+        //printf("DEC\n");
         return DEC;
     }
 
