@@ -4,6 +4,8 @@
 #include <lexer.h>
 
 int linenum = 1;
+int i = 0;
+char lexeme[MAXIDLEN+1];
 
 // abc123 := a + b
 void skipspaces(FILE *tape) {
@@ -21,100 +23,129 @@ void skipspaces(FILE *tape) {
 
 // ID = [A-Za-z][A-Za-z0-9]*
 int isID(FILE *tape) {
-    int head = getc(tape);
+    //int i = 0;
+    lexeme[i] = getc(tape);
 
-    if (isalpha(head)) {
-        while (isalnum(head = getc(tape)));
-        ungetc(head, tape);
+    if (isalpha(lexeme[i])) {
+        i++;
+        
+        while (isalnum(lexeme[i] = getc(tape))) {
+            i++;
+        }
 
+        ungetc(lexeme[i], tape);
+        lexeme[i] = 0;
+
+        //printf("%s\n", lexeme);
         return ID;
     }
 
-    ungetc(head, tape);
+    ungetc(lexeme[i], tape);
+
     return 0;
 }
 
 // DEC = [1-9][0-9]* | 0
 int isDEC(FILE *tape) {
-    int head = getc(tape);
+    //int i = 0;
+    lexeme[i] = getc(tape);
 
-    if (head == '\n') {
-        ungetc(head, tape);
+    if (lexeme[i] == '\n') {
+        ungetc(lexeme[i], tape);
+        lexeme[i] = 0;
 
+        //printf("%s\n", lexeme);
         return DEC;
     }
 
-    if (isdigit(head)) {
-        if (head == '0') {
-            return DEC;
+    if (isdigit(lexeme[i])) {
+        i++;
+
+        while (isdigit(lexeme[i] = getc(tape))) {
+            i++;
         }
-
-        while (isdigit(head = getc(tape)));
         
-        ungetc(head, tape);
+        ungetc(lexeme[i], tape);
+        lexeme[i] = 0;
         
+        //printf("%s\n", lexeme);
         return DEC;
     }
 
-    ungetc(head, tape);
+    ungetc(lexeme[i], tape);
 
     return 0;
 }
 
 // OCT = 0[0-7]+
 int isOCT(FILE *tape) {
-    int head = getc(tape);
+    //int i = 0;
+    lexeme[i] = getc(tape);
 
-    if (head == '0') {
-        if((head = getc(tape)) == '\n') {
-            ungetc(head, tape);
+    if (lexeme[i] == '0') {
+        i++;
+        lexeme[i] = getc(tape);
+
+        if(lexeme[i] == '\n') {
+            ungetc(lexeme[i], tape);
 
             return 0;
         }
 
         do {
-            if (head < '0' || head > '7') {            
-                ungetc(head, tape);
+            if (lexeme[i] < '0' || lexeme[i] > '7') {            
+                ungetc(lexeme[i], tape);
 
                 return 0;
             }
-        } while (isdigit(head = getc(tape)));
 
-        ungetc(head, tape);
+            i++;
+        } while (isdigit(lexeme[i] = getc(tape)));
 
+        ungetc(lexeme[i], tape);
+        lexeme[i] = 0;
+
+        //printf("%s\n", lexeme);
         return OCT;
     }
     
-    ungetc(head, tape);
+    ungetc(lexeme[i], tape);
 
     return 0;
 }
 
 // HEX = 0[xX][0-9a-fA-F]+
 int isHEX(FILE *tape) {
-    int head = getc(tape);
+    //int i = 1;
+    lexeme[i] = getc(tape);
 
-    if (head == '\n') {
-        ungetc(head, tape);
+    if (lexeme[i] == '\n') {
+        ungetc(lexeme[i], tape);
 
         return 0;
     }
 
-    if (toupper(head) == 'X') {
-        while (isalnum(head = getc(tape))) {
-            if ((head < '0' || head > '9') && (toupper(head) < 'A' || toupper(head) > 'F')) {
-                ungetc(head, tape);
+    if (toupper(lexeme[i]) == 'X') {
+        i++;
+
+        while (isalnum(lexeme[i] = getc(tape))) {
+            if ((lexeme[i] < '0' || lexeme[i] > '9') && (toupper(lexeme[i]) < 'A' || toupper(lexeme[i]) > 'F')) {
+                ungetc(lexeme[i], tape);
 
                 return 0;
             }
+
+            i++;
         }
 
-        ungetc(head, tape);
-
+        ungetc(lexeme[i], tape);
+        lexeme[i] = 0;
+        
+        //printf("%s\n", lexeme);
         return HEX;
     }
     
-    ungetc(head, tape);
+    ungetc(lexeme[i], tape);
 
     return 0;
 }
@@ -122,6 +153,7 @@ int isHEX(FILE *tape) {
 int gettoken(FILE *source) {
     int token;
 
+    i = 0;
     skipspaces(source);
     
     if ((token = isID(source))) {

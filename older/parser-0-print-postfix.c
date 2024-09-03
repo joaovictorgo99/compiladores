@@ -46,21 +46,41 @@ void T(void) {
 
 // R -> '+' T R | '-' T R | <>
 void R(void) {
-    while (lookahead == '+' || lookahead == '-') {
-        int op = lookahead;
-        match(lookahead);
-        T();
-        printf(" %c ", op);
+    switch(lookahead) {
+        case '+':
+            match('+');
+            T();
+            printf(" + ");
+            R();
+            break;
+        case '-':
+            match('-');
+            T();
+            printf(" - ");
+            R();
+            break;
+        default:
+            ;
     }
 }
 
 // Q -> '*' F Q | '/' F Q | <>
 void Q(void) {
-    while (lookahead == '*' || lookahead == '/') {
-        int op = lookahead;
-        match(lookahead);
-        F();
-        printf(" %c ", op);
+    switch(lookahead) {
+        case '*':
+            match('*');
+            F();
+            printf(" * ");
+            Q();
+            break;
+        case '/':
+            match('/');
+            F();
+            printf(" / ");
+            Q();
+            break;
+        default:
+            ;
     }
 }
 
@@ -73,20 +93,20 @@ void F(void) {
             match(')');
             break;
         case ID:
-            printf(" %s ", lexeme);
+            printf(" id ");
             match(ID);
             break;
         case OCT:
-            printf(" %s ", lexeme);
+            printf(" oct ");
             match(OCT);
             break;
         case HEX:
-            printf(" %s ", lexeme);
+            printf(" hex ");
             match(HEX);
             break;
         default:
-            printf(" %s ", lexeme);
             match(DEC);
+            printf(" dec ");
     }
 }
 
