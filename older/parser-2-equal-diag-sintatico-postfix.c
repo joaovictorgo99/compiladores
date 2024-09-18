@@ -18,7 +18,7 @@ A -> b | <> ~ A -> [ b ]
 
 // E -> [ ominus ] T { oplus T }
 void E(void) {
-    int ominus = 0, oplus = 0, otimes = 0, op;
+    int ominus = 0;
 
     if (lookahead == '+' || lookahead == '-') {        
         if (lookahead == '-') {
@@ -28,10 +28,35 @@ void E(void) {
         match(lookahead);
     }
 
+    T();
+
+    if (ominus) {
+        printf(" negate ");
+        ominus = 0;
+    }
+
+    while (lookahead == '+' || lookahead == '-') {
+        int op = lookahead;
+        match(lookahead);
+        T();
+        printf(" %c ", op);
+    }
+}
+
 // T -> F { otimes F }
-_T:
+void T(void) {
+    F();
+
+    while (lookahead == '*' || lookahead == '/') {
+        int op = lookahead;
+        match(lookahead);
+        F();
+        printf(" %c ", op);
+    }
+}
+
 // F -> ( E ) | ID | OCT | HEX | DEC 
-_F:
+void F(void) {
     switch(lookahead) {
         case '(':
             match('(');
@@ -53,47 +78,6 @@ _F:
         default:
             printf(" %s ", lexeme);
             match(DEC);
-    }
-
-    if (otimes) {
-        printf(" %c ", otimes);
-        otimes = 0;
-    }
-
-    if (lookahead == '*' || lookahead == '/') {
-        if (lookahead == '*') {
-            otimes = '*';
-        }
-        else if (lookahead == '/') {
-            otimes = '/';
-        }
-
-        op = lookahead;
-        match(lookahead);
-        goto _F;
-    }
-
-    if (ominus) {
-        printf(" negate ");
-        ominus = 0;
-    }
-
-    if (oplus) {
-        printf(" %c ", oplus);
-        oplus = 0;
-    }
-
-    if (lookahead == '+' || lookahead == '-') {
-        if (lookahead == '+') {
-            oplus = '+';
-        }
-        else if (lookahead == '-') {
-            oplus = '-';
-        }
-
-        op = lookahead;
-        match(lookahead);
-        goto _T;
     }
 }
 

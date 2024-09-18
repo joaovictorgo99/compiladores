@@ -9,16 +9,16 @@ int lookahead;
 /*
 LL(1) grammar:
 
-E -> [ ominus ] T { oplus T }
-T -> F { otimes F }
+E -> T R
+T -> F Q
+R -> '+' T R | '-' T R | <>
+Q -> '*' F Q | '/' F Q | <>
 F -> ( E ) | ID | OCT | HEX | DEC
-A -> a A | <> ~ A -> { a }
-A -> b | <> ~ A -> [ b ]
 */
 
-// E -> [ ominus ] T { oplus T }
+// E -> T R
 void E(void) {
-    int ominus = 0, oplus = 0, otimes = 0, op;
+    int ominus = 0;
 
     if (lookahead == '+' || lookahead == '-') {        
         if (lookahead == '-') {
@@ -28,10 +28,44 @@ void E(void) {
         match(lookahead);
     }
 
-// T -> F { otimes F }
-_T:
+    T();
+
+    if (ominus) {
+        printf(" negate ");
+        ominus = 0;
+    }
+
+    R();
+}
+
+//T -> F Q
+void T(void) {
+    F();
+    Q();
+}
+
+// R -> '+' T R | '-' T R | <>
+void R(void) {
+    while (lookahead == '+' || lookahead == '-') {
+        int op = lookahead;
+        match(lookahead);
+        T();
+        printf(" %c ", op);
+    }
+}
+
+// Q -> '*' F Q | '/' F Q | <>
+void Q(void) {
+    while (lookahead == '*' || lookahead == '/') {
+        int op = lookahead;
+        match(lookahead);
+        F();
+        printf(" %c ", op);
+    }
+}
+
 // F -> ( E ) | ID | OCT | HEX | DEC 
-_F:
+void F(void) {
     switch(lookahead) {
         case '(':
             match('(');
@@ -53,47 +87,6 @@ _F:
         default:
             printf(" %s ", lexeme);
             match(DEC);
-    }
-
-    if (otimes) {
-        printf(" %c ", otimes);
-        otimes = 0;
-    }
-
-    if (lookahead == '*' || lookahead == '/') {
-        if (lookahead == '*') {
-            otimes = '*';
-        }
-        else if (lookahead == '/') {
-            otimes = '/';
-        }
-
-        op = lookahead;
-        match(lookahead);
-        goto _F;
-    }
-
-    if (ominus) {
-        printf(" negate ");
-        ominus = 0;
-    }
-
-    if (oplus) {
-        printf(" %c ", oplus);
-        oplus = 0;
-    }
-
-    if (lookahead == '+' || lookahead == '-') {
-        if (lookahead == '+') {
-            oplus = '+';
-        }
-        else if (lookahead == '-') {
-            oplus = '-';
-        }
-
-        op = lookahead;
-        match(lookahead);
-        goto _T;
     }
 }
 
