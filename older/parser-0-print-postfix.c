@@ -18,22 +18,26 @@ F -> ( E ) | ID | OCT | HEX | DEC
 
 // E -> T R
 void E(void) {
-    int ominus = 0;
+    /*0*/int ominus = 0;/*0*/
 
     if (lookahead == '+' || lookahead == '-') {        
+        /*1*/
         if (lookahead == '-') {
             ominus = '-';
         }
+        /*1*/
 
         match(lookahead);
     }
 
     T();
 
+    /*2*/
     if (ominus) {
         printf(" negate ");
         ominus = 0;
     }
+    /*2*/
 
     R();
 }
@@ -50,13 +54,13 @@ void R(void) {
         case '+':
             match('+');
             T();
-            printf(" + ");
+            /*0*/printf(" + ");/*0*/
             R();
             break;
         case '-':
             match('-');
             T();
-            printf(" - ");
+            /*1*/printf(" - ");/*1*/
             R();
             break;
         default:
@@ -70,13 +74,13 @@ void Q(void) {
         case '*':
             match('*');
             F();
-            printf(" * ");
+            /*0*/printf(" * ");/*0*/
             Q();
             break;
         case '/':
             match('/');
             F();
-            printf(" / ");
+            /*1*/printf(" / ");/*1*/
             Q();
             break;
         default:
@@ -93,20 +97,20 @@ void F(void) {
             match(')');
             break;
         case ID:
-            printf(" id ");
+            /*0*/printf(" id ");/*0*/
             match(ID);
             break;
         case OCT:
-            printf(" oct ");
+            /*1*/printf(" oct ");/*1*/
             match(OCT);
             break;
         case HEX:
-            printf(" hex ");
+            /*2*/printf(" hex ");/*2*/
             match(HEX);
             break;
         default:
             match(DEC);
-            printf(" dec ");
+            /*3*/printf(" dec ");/*3*/
     }
 }
 
@@ -115,7 +119,7 @@ void match(int expected) {
         lookahead = gettoken(source);
     }
     else {
-        fprintf(stderr, "token mismatch\n");
+        /*0*/fprintf(stderr, "token mismatch\n");/*0*/
         exit(-3);
     }
 }

@@ -18,22 +18,26 @@ F -> ( E ) | ID | OCT | HEX | DEC
 
 // E -> T R
 void E(void) {
-    int ominus = 0;
+    /*0*/int ominus = 0;/*0*/
 
-    if (lookahead == '+' || lookahead == '-') {        
+    if (lookahead == '+' || lookahead == '-') {
+        /*1*/
         if (lookahead == '-') {
             ominus = '-';
         }
+        /*1*/
 
         match(lookahead);
     }
 
     T();
 
+    /*2*/
     if (ominus) {
         printf(" negate ");
         ominus = 0;
     }
+    /*2*/
 
     R();
 }
@@ -47,20 +51,20 @@ void T(void) {
 // R -> '+' T R | '-' T R | <>
 void R(void) {
     while (lookahead == '+' || lookahead == '-') {
-        int op = lookahead;
+        /*0*/int op = lookahead;/*0*/
         match(lookahead);
         T();
-        printf(" %c ", op);
+        /*1*/printf(" %c ", op);/*1*/
     }
 }
 
 // Q -> '*' F Q | '/' F Q | <>
 void Q(void) {
     while (lookahead == '*' || lookahead == '/') {
-        int op = lookahead;
+        /*0*/int op = lookahead;/*0*/
         match(lookahead);
         F();
-        printf(" %c ", op);
+        /*1*/printf(" %c ", op);/*1*/
     }
 }
 
@@ -73,19 +77,19 @@ void F(void) {
             match(')');
             break;
         case ID:
-            printf(" %s ", lexeme);
+            /*0*/printf(" %s ", lexeme);/*0*/
             match(ID);
             break;
         case OCT:
-            printf(" %s ", lexeme);
+            /*1*/printf(" %s ", lexeme);/*1*/
             match(OCT);
             break;
         case HEX:
-            printf(" %s ", lexeme);
+            /*2*/printf(" %s ", lexeme);/*2*/
             match(HEX);
             break;
         default:
-            printf(" %s ", lexeme);
+            /*3*/printf(" %s ", lexeme);/*3*/
             match(DEC);
     }
 }
@@ -95,7 +99,7 @@ void match(int expected) {
         lookahead = gettoken(source);
     }
     else {
-        fprintf(stderr, "token mismatch\n");
+        /*0*/fprintf(stderr, "token mismatch\n");/*0*/
         exit(-3);
     }
 }

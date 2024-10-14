@@ -18,12 +18,14 @@ A -> b | <> ~ A -> [ b ]
 
 // E -> [ ominus ] T { oplus T }
 void E(void) {
-    int ominus = 0, oplus = 0, otimes = 0, op;
+    /*0*/int ominus = 0, oplus = 0, otimes = 0, op;/*0*/
 
-    if (lookahead == '+' || lookahead == '-') {        
+    if (lookahead == '+' || lookahead == '-') {
+        /*1*/
         if (lookahead == '-') {
             ominus = '-';
         }
+        /*1*/
 
         match(lookahead);
     }
@@ -39,59 +41,69 @@ _F:
             match(')');
             break;
         case ID:
-            printf(" %s ", lexeme);
+            /*2*/printf(" %s ", lexeme);/*2*/
             match(ID);
             break;
         case OCT:
-            printf(" %s ", lexeme);
+            /*3*/printf(" %s ", lexeme);/*3*/
             match(OCT);
             break;
         case HEX:
-            printf(" %s ", lexeme);
+            /*4*/printf(" %s ", lexeme);/*4*/
             match(HEX);
             break;
         default:
-            printf(" %s ", lexeme);
+            /*5*/printf(" %s ", lexeme);/*5*/
             match(DEC);
     }
 
+    /*6*/
     if (otimes) {
         printf(" %c ", otimes);
         otimes = 0;
     }
+    /*6*/
 
     if (lookahead == '*' || lookahead == '/') {
+        /*7*/
         if (lookahead == '*') {
             otimes = '*';
         }
         else if (lookahead == '/') {
             otimes = '/';
         }
+        /*7*/
 
-        op = lookahead;
+        /*8*/op = lookahead;/*8*/
         match(lookahead);
         goto _F;
     }
 
+    /*9*/
     if (ominus) {
         printf(" negate ");
         ominus = 0;
     }
+    /*9*/
 
+    /*10*/
     if (oplus) {
         printf(" %c ", oplus);
         oplus = 0;
     }
+    /*10*/
 
     if (lookahead == '+' || lookahead == '-') {
+        /*11*/
         if (lookahead == '+') {
             oplus = '+';
         }
         else if (lookahead == '-') {
             oplus = '-';
         }
+        /*11*/
 
-        op = lookahead;
+        /*12*/op = lookahead;/*12*/
         match(lookahead);
         goto _T;
     }
@@ -102,7 +114,7 @@ void match(int expected) {
         lookahead = gettoken(source);
     }
     else {
-        fprintf(stderr, "token mismatch\n");
+        /*0*/fprintf(stderr, "token mismatch\n");/*0*/
         exit(-3);
     }
 }

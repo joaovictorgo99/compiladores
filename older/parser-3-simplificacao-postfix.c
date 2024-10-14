@@ -18,12 +18,14 @@ A -> b | <> ~ A -> [ b ]
 
 // E -> [ ominus ] T { oplus T }
 void E(void) {
-    int ominus = 0, oplus = 0;
+    /*0*/int ominus = 0, oplus = 0;/*0*/
 
-    if (lookahead == '+' || lookahead == '-') {        
+    if (lookahead == '+' || lookahead == '-') {
+        /*1*/
         if (lookahead == '-') {
             ominus = '-';
         }
+        /*1*/
 
         match(lookahead);
     }
@@ -31,57 +33,71 @@ void E(void) {
 _T:
     T();
 
+    /*2*/
     if (ominus) {
         printf(" negate ");
         ominus = 0;
     }
+    /*2*/
 
+    /*3*/
     if (oplus) {
         printf(" %c ", oplus);
         oplus = 0;
     }
+    /*3*/
 
     if (lookahead == '+' || lookahead == '-') {
+        /*4*/
         if (lookahead == '+') {
             oplus = '+';
         }
+        /*4*/
 
+        /*5*/
         if (lookahead == '-') {
             oplus = '-';
         }
+        /*5*/
 
-        int op = lookahead;
+        /*6*/int op = lookahead;/*6*/
         match(lookahead);
         goto _T;
-        printf(" %c ", op);
+        /*7*/printf(" %c ", op);/*7*/
     }
 }
 
 // T -> F { otimes F }
 void T(void) {
-    int otimes = 0;
+    /*0*/int otimes = 0;/*0*/
     
 _F:
     F();
 
+    /*1*/
     if (otimes) {
         printf(" %c ", otimes);
         otimes = 0;
     }
+    /*1*/
 
     if (lookahead == '*' || lookahead == '/') {
+        /*2*/
         if (lookahead == '*') {
             otimes = '*';
         }
+        /*2*/
 
+        /*3*/
         if (lookahead == '/') {
             otimes = '/';
         }
+        /*3*/
 
-        int op = lookahead;
+        /*4*/int op = lookahead;/*4*/
         match(lookahead);
         goto _F;
-        printf(" %c ", op);
+        /*5*/printf(" %c ", op);/*5*/
     }
 }
 
@@ -94,19 +110,19 @@ void F(void) {
             match(')');
             break;
         case ID:
-            printf(" %s ", lexeme);
+            /*0*/printf(" %s ", lexeme);/*0*/
             match(ID);
             break;
         case OCT:
-            printf(" %s ", lexeme);
+            /*1*/printf(" %s ", lexeme);/*1*/
             match(OCT);
             break;
         case HEX:
-            printf(" %s ", lexeme);
+            /*2*/printf(" %s ", lexeme);/*2*/
             match(HEX);
             break;
         default:
-            printf(" %s ", lexeme);
+            /*3*/printf(" %s ", lexeme);/*3*/
             match(DEC);
     }
 }
@@ -116,7 +132,7 @@ void match(int expected) {
         lookahead = gettoken(source);
     }
     else {
-        fprintf(stderr, "token mismatch\n");
+        /*0*/fprintf(stderr, "token mismatch\n");/*0*/
         exit(-3);
     }
 }
