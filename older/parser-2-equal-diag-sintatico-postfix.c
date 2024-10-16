@@ -17,13 +17,13 @@ A -> b | <> ~ A -> [ b ]
 */
 
 // E -> [ ominus ] T { oplus T }
-void E(void) {
+void E(void) {  // Expressão
     /*0*/int ominus = 0;/*0*/
 
     if (lookahead == '+' || lookahead == '-') {
         /*1*/
-        if (lookahead == '-') {
-            ominus = '-';
+        if (lookahead == '-') {  // Token é símbolo de negação
+            ominus = '-';  // Variável recebe símbolo de negação
         }
         /*1*/
 
@@ -33,9 +33,9 @@ void E(void) {
     T();
 
     /*2*/
-    if (ominus) {
+    if (ominus) {  // Imprimi o símbolo de negação
         printf(" negate ");
-        ominus = 0;
+        ominus = 0;  // Reseta a variável
     }
     /*2*/
 
@@ -48,7 +48,7 @@ void E(void) {
 }
 
 // T -> F { otimes F }
-void T(void) {
+void T(void) {  // Termo
     F();
 
     while (lookahead == '*' || lookahead == '/') {
@@ -60,7 +60,7 @@ void T(void) {
 }
 
 // F -> ( E ) | ID | OCT | HEX | DEC 
-void F(void) {
+void F(void) {  // Fator
     switch(lookahead) {
         case '(':
             match('(');
@@ -86,10 +86,10 @@ void F(void) {
 }
 
 void match(int expected) {
-    if (lookahead == expected) {
+    if (lookahead == expected) {  // Token reconhecido
         lookahead = gettoken(source);
     }
-    else {
+    else {  // Token não reconhecido
         /*0*/fprintf(stderr, "token mismatch\n");/*0*/
         exit(-3);
     }

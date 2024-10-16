@@ -17,13 +17,13 @@ A -> b | <> ~ A -> [ b ]
 */
 
 // E -> [ ominus ] T { oplus T }
-void E(void) {
+void E(void) {  // Expressão
     /*0*/int ominus = 0, oplus = 0, otimes = 0, op;/*0*/
 
     if (lookahead == '+' || lookahead == '-') {
         /*1*/
-        if (lookahead == '-') {
-            ominus = '-';
+        if (lookahead == '-') {  // Token é símbolo de negação
+            ominus = '-';  // Variável recebe símbolo de negação
         }
         /*1*/
 
@@ -31,9 +31,9 @@ void E(void) {
     }
 
 // T -> F { otimes F }
-_T:
+_T:  // Termo
 // F -> ( E ) | ID | OCT | HEX | DEC 
-_F:
+_F:  // Fator
     switch(lookahead) {
         case '(':
             match('(');
@@ -58,19 +58,19 @@ _F:
     }
 
     /*6*/
-    if (otimes) {
+    if (otimes) {  // Imprimi o símbolo de multiplicação ou divisão
         printf(" %c ", otimes);
-        otimes = 0;
+        otimes = 0;  // Reseta a variável
     }
     /*6*/
 
     if (lookahead == '*' || lookahead == '/') {
         /*7*/
-        if (lookahead == '*') {
-            otimes = '*';
+        if (lookahead == '*') {  // Token é símbolo de multiplicação
+            otimes = '*';  // Variável recebe símbolo de multiplicação
         }
-        else if (lookahead == '/') {
-            otimes = '/';
+        else if (lookahead == '/') {  // Token é símbolo de divisão
+            otimes = '/';  // Variável recebe símbolo de divisão
         }
         /*7*/
 
@@ -80,26 +80,26 @@ _F:
     }
 
     /*9*/
-    if (ominus) {
+    if (ominus) {  // Imprimi o símbolo de negação
         printf(" negate ");
-        ominus = 0;
+        ominus = 0;  // Reseta a variável
     }
     /*9*/
 
     /*10*/
-    if (oplus) {
+    if (oplus) {  // Imprimi o símbolo de adição ou subtração
         printf(" %c ", oplus);
-        oplus = 0;
+        oplus = 0;  // Reseta a variável
     }
     /*10*/
 
     if (lookahead == '+' || lookahead == '-') {
         /*11*/
-        if (lookahead == '+') {
-            oplus = '+';
+        if (lookahead == '+') {  // Token é símbolo de adição
+            oplus = '+';  // Variável recebe símbolo de adição
         }
-        else if (lookahead == '-') {
-            oplus = '-';
+        else if (lookahead == '-') {  // Token é símbolo de subtração
+            oplus = '-';  // Variável recebe símbolo de subtração
         }
         /*11*/
 
@@ -110,10 +110,10 @@ _F:
 }
 
 void match(int expected) {
-    if (lookahead == expected) {
+    if (lookahead == expected) {  // Token reconhecido
         lookahead = gettoken(source);
     }
-    else {
+    else {  // Token não reconhecido
         /*0*/fprintf(stderr, "token mismatch\n");/*0*/
         exit(-3);
     }

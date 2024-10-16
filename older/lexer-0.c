@@ -9,9 +9,9 @@ int linenum = 1;
 void skipspaces(FILE *tape) {
     int head;
 
-    while (isspace(head = getc(tape))) {
+    while (isspace(head = getc(tape))) {  // Ignora caracteres de espaço, "consumindo-o"
         if (head == '\n')
-            linenum++;
+            linenum++;  // Contabiliza o número de linhas
     };
 
     //printf("linenum: %d\n", linenum);
@@ -23,14 +23,16 @@ void skipspaces(FILE *tape) {
 int isID(FILE *tape) {
     int head = getc(tape);
 
-    if (isalpha(head)) {
-        while (isalnum(head = getc(tape)));
-        ungetc(head, tape);
+    if (isalpha(head)) {  // É ID
+        while (isalnum(head = getc(tape)));  // Itera enquanto caractere pertencer ao formato ID
 
+        // Transição epsilon para estado ID
+        ungetc(head, tape);  // Caractere não pertence ao formato ID, logo caractere é devolvido ao buffer
         return ID;
     }
 
-    ungetc(head, tape);
+    // Transição epsilon para estado zero
+    ungetc(head, tape);  // Não é ID, logo caractere é devolvido ao buffer
     return 0;
 }
 
@@ -38,26 +40,26 @@ int isID(FILE *tape) {
 int isDEC(FILE *tape) {
     int head = getc(tape);
 
-    if (head == '\n') {
-        ungetc(head, tape);
-
+    if (head == '\n') {  // É DEC, vindo de OCT ou HEX, zero
+        // Transição epsilon para estado DEC
+        ungetc(head, tape);  // Caractere não pertence ao formato DEC, logo caractere é devolvido ao buffer
         return DEC;
     }
 
-    if (isdigit(head)) {
-        if (head == '0') {
+    if (isdigit(head)) {  // É DEC
+        if (head == '0') {  // É DEC, zero
             return DEC;
         }
 
-        while (isdigit(head = getc(tape)));
+        while (isdigit(head = getc(tape)));  // Itera enquanto caractere pertencer ao formato DEC
         
-        ungetc(head, tape);
-        
+        // Transição epsilon para estado DEC
+        ungetc(head, tape);  // Caractere não pertence ao formato DEC, logo caractere é devolvido ao buffer
         return DEC;
     }
 
-    ungetc(head, tape);
-
+    // Transição epsilon para estado zero
+    ungetc(head, tape);  // Não é DEC, logo caractere é devolvido ao buffer
     return 0;
 }
 
@@ -67,26 +69,27 @@ int isOCT(FILE *tape) {
 
     if (head == '0') {
         if((head = getc(tape)) == '\n') {
-            ungetc(head, tape);
-
+            // Transição epsilon para estado zero
+            ungetc(head, tape);  // Não é OCT, logo caractere é devolvido ao buffer
             return 0;
         }
 
         do {
-            if (head < '0' || head > '7') {            
-                ungetc(head, tape);
-
+            if (head < '0' || head > '7') {  // Caractere não pertence ao formato OCT
+                // Transição epsilon para estado zero
+                ungetc(head, tape);  // Não é OCT, logo caractere é devolvido ao buffer
                 return 0;
             }
-        } while (isdigit(head = getc(tape)));
+        } while (isdigit(head = getc(tape)));  // Itera enquanto caractere pertencer ao formato OCT
 
-        ungetc(head, tape);
-
+        // É OCT
+        // Transição epsilon para estado OCT
+        ungetc(head, tape);  // Caractere não pertence ao formato OCT, logo caractere é devolvido ao buffer
         return OCT;
     }
     
-    ungetc(head, tape);
-
+    // Transição epsilon para estado zero
+    ungetc(head, tape);  // Não é OCT, logo caractere é devolvido ao buffer
     return 0;
 }
 
@@ -95,34 +98,35 @@ int isHEX(FILE *tape) {
     int head = getc(tape);
 
     if (head == '\n') {
-        ungetc(head, tape);
-
+        // Transição epsilon para estado zero
+        ungetc(head, tape);  // Não é HEX, logo caractere é devolvido ao buffer
         return 0;
     }
 
-    if (toupper(head) == 'X') {
-        while (isalnum(head = getc(tape))) {
-            if ((head < '0' || head > '9') && (toupper(head) < 'A' || toupper(head) > 'F')) {
-                ungetc(head, tape);
-
+    if (toupper(head) == 'X') {  
+        while (isalnum(head = getc(tape))) {  // Itera enquanto caractere pertencer ao formato HEX
+            if ((head < '0' || head > '9') && (toupper(head) < 'A' || toupper(head) > 'F')) {  // Caractere não pertence ao formato HEX
+                // Transição epsilon para estado zero
+                ungetc(head, tape);  // Não é HEX, logo caractere é devolvido ao buffer
                 return 0;
             }
         }
 
-        ungetc(head, tape);
-
+        // É HEX
+        // Transição epsilon para estado HEX
+        ungetc(head, tape);  // Caractere não pertence ao formato HEX, logo caractere é devolvido ao buffer
         return HEX;
     }
     
-    ungetc(head, tape);
-
+    // Transição epsilon para estado zero
+    ungetc(head, tape);  // Não é HEX, logo caractere é devolvido ao buffer
     return 0;
 }
 
-int gettoken(FILE *source) {
+int gettoken(FILE *source) {  // Front-end do analisador léxico
     int token;
 
-    skipspaces(source);
+    skipspaces(source);  // Ignora os caracteres de espaço da entrada
     
     if ((token = isID(source))) {
         //printf("ID\n");

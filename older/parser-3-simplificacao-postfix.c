@@ -17,13 +17,13 @@ A -> b | <> ~ A -> [ b ]
 */
 
 // E -> [ ominus ] T { oplus T }
-void E(void) {
+void E(void) {  // Expressão
     /*0*/int ominus = 0, oplus = 0;/*0*/
 
     if (lookahead == '+' || lookahead == '-') {
         /*1*/
-        if (lookahead == '-') {
-            ominus = '-';
+        if (lookahead == '-') {  // Token é símbolo de negação
+            ominus = '-';  // Variável recebe símbolo de negação
         }
         /*1*/
 
@@ -34,29 +34,29 @@ _T:
     T();
 
     /*2*/
-    if (ominus) {
+    if (ominus) {  // Imprimi o símbolo de negação
         printf(" negate ");
-        ominus = 0;
+        ominus = 0;  // Reseta a variável
     }
     /*2*/
 
     /*3*/
-    if (oplus) {
+    if (oplus) {  // Imprimi o símbolo de adição ou subtração
         printf(" %c ", oplus);
-        oplus = 0;
+        oplus = 0;  // Reseta a variável
     }
     /*3*/
 
     if (lookahead == '+' || lookahead == '-') {
         /*4*/
-        if (lookahead == '+') {
-            oplus = '+';
+        if (lookahead == '+') {  // Token é símbolo de adição
+            oplus = '+';  // Variável recebe símbolo de adição
         }
         /*4*/
 
         /*5*/
-        if (lookahead == '-') {
-            oplus = '-';
+        if (lookahead == '-') {  // Token é símbolo de subtração
+            oplus = '-';  // Variável recebe símbolo de subtração
         }
         /*5*/
 
@@ -68,29 +68,29 @@ _T:
 }
 
 // T -> F { otimes F }
-void T(void) {
+void T(void) {  // Termo
     /*0*/int otimes = 0;/*0*/
     
 _F:
     F();
 
     /*1*/
-    if (otimes) {
+    if (otimes) {  // Imprimi o símbolo de multiplicação ou divisão
         printf(" %c ", otimes);
-        otimes = 0;
+        otimes = 0;  // Reseta a variável
     }
     /*1*/
 
     if (lookahead == '*' || lookahead == '/') {
         /*2*/
-        if (lookahead == '*') {
-            otimes = '*';
+        if (lookahead == '*') {  // Token é símbolo de multiplicação
+            otimes = '*';  // Variável recebe símbolo de multiplicação
         }
         /*2*/
 
         /*3*/
-        if (lookahead == '/') {
-            otimes = '/';
+        if (lookahead == '/') {  // Token é símbolo de divisão
+            otimes = '/';  // Variável recebe símbolo de divisão
         }
         /*3*/
 
@@ -102,7 +102,7 @@ _F:
 }
 
 // F -> ( E ) | ID | OCT | HEX | DEC 
-void F(void) {
+void F(void) {  // Fator
     switch(lookahead) {
         case '(':
             match('(');
@@ -128,10 +128,10 @@ void F(void) {
 }
 
 void match(int expected) {
-    if (lookahead == expected) {
+    if (lookahead == expected) {  // Token reconhecido
         lookahead = gettoken(source);
     }
-    else {
+    else {  // Token não reconhecido
         /*0*/fprintf(stderr, "token mismatch\n");/*0*/
         exit(-3);
     }

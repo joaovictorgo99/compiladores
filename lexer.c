@@ -11,9 +11,9 @@ char lexeme[MAXIDLEN+1];
 void skipspaces(FILE *tape) {
     int head;
 
-    while (isspace(head = getc(tape))) {
+    while (isspace(head = getc(tape))) {  // Ignora caracteres de espaço, "consumindo-o"
         if (head == '\n')
-            linenum++;
+            linenum++;  // Contabiliza o número de linhas
     };
 
     //printf("linenum: %d\n", linenum);
@@ -26,22 +26,22 @@ int isID(FILE *tape) {
     //int i = 0;
     lexeme[i] = getc(tape);
 
-    if (isalpha(lexeme[i])) {
+    if (isalpha(lexeme[i])) {  // É ID
         i++;
         
-        while (isalnum(lexeme[i] = getc(tape))) {
+        while (isalnum(lexeme[i] = getc(tape))) {  // Itera enquanto caractere pertencer ao formato ID
             i++;
         }
 
-        ungetc(lexeme[i], tape);
+        // Transição epsilon para estado ID
+        ungetc(lexeme[i], tape);  // Caractere não pertence ao formato ID, logo caractere é devolvido ao buffer
         lexeme[i] = 0;
-
         //printf("%s\n", lexeme);
         return ID;
     }
 
-    ungetc(lexeme[i], tape);
-
+    // Transição epsilon para estado zero
+    ungetc(lexeme[i], tape);  // Não é ID, logo caractere é devolvido ao buffer
     return 0;
 }
 
@@ -50,30 +50,30 @@ int isDEC(FILE *tape) {
     //int i = 0;
     lexeme[i] = getc(tape);
 
-    if (lexeme[i] == '\n') {
-        ungetc(lexeme[i], tape);
+    if (lexeme[i] == '\n') {  // É DEC, vindo de OCT ou HEX, zero
+        // Transição epsilon para estado DEC
+        ungetc(lexeme[i], tape);  // Caractere não pertence ao formato DEC, logo caractere é devolvido ao buffer
         lexeme[i] = 0;
-
         //printf("%s\n", lexeme);
         return DEC;
     }
 
-    if (isdigit(lexeme[i])) {
+    if (isdigit(lexeme[i])) {  // É DEC
         i++;
 
-        while (isdigit(lexeme[i] = getc(tape))) {
+        while (isdigit(lexeme[i] = getc(tape))) {  // Itera enquanto caractere pertencer ao formato DEC
             i++;
         }
         
-        ungetc(lexeme[i], tape);
+        // Transição epsilon para estado DEC
+        ungetc(lexeme[i], tape);  // Caractere não pertence ao formato DEC, logo caractere é devolvido ao buffer
         lexeme[i] = 0;
-        
         //printf("%s\n", lexeme);
         return DEC;
     }
 
-    ungetc(lexeme[i], tape);
-
+    // Transição epsilon para estado zero
+    ungetc(lexeme[i], tape);  // Não é DEC, logo caractere é devolvido ao buffer
     return 0;
 }
 
@@ -87,30 +87,31 @@ int isOCT(FILE *tape) {
         lexeme[i] = getc(tape);
 
         if(lexeme[i] == '\n') {
-            ungetc(lexeme[i], tape);
-
+            // Transição epsilon para estado zero
+            ungetc(lexeme[i], tape);  // Não é OCT, logo caractere é devolvido ao buffer
             return 0;
         }
 
         do {
-            if (lexeme[i] < '0' || lexeme[i] > '7') {            
-                ungetc(lexeme[i], tape);
-
+            if (lexeme[i] < '0' || lexeme[i] > '7') {  // Caractere não pertence ao formato OCT         
+                // Transição epsilon para estado zero
+                ungetc(lexeme[i], tape);  // Não é OCT, logo caractere é devolvido ao buffer
                 return 0;
             }
 
             i++;
-        } while (isdigit(lexeme[i] = getc(tape)));
+        } while (isdigit(lexeme[i] = getc(tape)));  // Itera enquanto caractere pertencer ao formato OCT
 
-        ungetc(lexeme[i], tape);
+        // É OCT
+        // Transição epsilon para estado OCT
+        ungetc(lexeme[i], tape);  // Caractere não pertence ao formato OCT, logo caractere é devolvido ao buffer
         lexeme[i] = 0;
-
         //printf("%s\n", lexeme);
         return OCT;
     }
     
-    ungetc(lexeme[i], tape);
-
+    // Transição epsilon para estado zero
+    ungetc(lexeme[i], tape);  // Não é OCT, logo caractere é devolvido ao buffer
     return 0;
 }
 
@@ -120,41 +121,42 @@ int isHEX(FILE *tape) {
     lexeme[i] = getc(tape);
 
     if (lexeme[i] == '\n') {
-        ungetc(lexeme[i], tape);
-
+        // Transição epsilon para estado zero
+        ungetc(lexeme[i], tape);  // Não é HEX, logo caractere é devolvido ao buffer
         return 0;
     }
 
     if (toupper(lexeme[i]) == 'X') {
         i++;
 
-        while (isalnum(lexeme[i] = getc(tape))) {
-            if ((lexeme[i] < '0' || lexeme[i] > '9') && (toupper(lexeme[i]) < 'A' || toupper(lexeme[i]) > 'F')) {
-                ungetc(lexeme[i], tape);
-
+        while (isalnum(lexeme[i] = getc(tape))) {  // Itera enquanto caractere pertencer ao formato HEX
+            if ((lexeme[i] < '0' || lexeme[i] > '9') && (toupper(lexeme[i]) < 'A' || toupper(lexeme[i]) > 'F')) {  // Caractere não pertence ao formato HEX
+                // Transição epsilon para estado zero
+                ungetc(lexeme[i], tape);  // Não é HEX, logo caractere é devolvido ao buffer
                 return 0;
             }
 
             i++;
         }
 
-        ungetc(lexeme[i], tape);
+        // É HEX
+        // Transição epsilon para estado HEX
+        ungetc(lexeme[i], tape);  // Caractere não pertence ao formato HEX, logo caractere é devolvido ao buffer
         lexeme[i] = 0;
-        
         //printf("%s\n", lexeme);
         return HEX;
     }
     
-    ungetc(lexeme[i], tape);
-
+    // Transição epsilon para estado zero
+    ungetc(lexeme[i], tape);  // Não é HEX, logo caractere é devolvido ao buffer
     return 0;
 }
 
-int gettoken(FILE *source) {
+int gettoken(FILE *source) {  // Front-end do analisador léxico
     int token;
 
     i = 0;
-    skipspaces(source);
+    skipspaces(source);  // Ignora os caracteres de espaço da entrada
     
     if ((token = isID(source))) {
         //printf("ID\n");
