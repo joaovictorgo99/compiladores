@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <lexer.h>
 
+double lexval;
 int linenum = 1;
 int i = 0;
 char lexeme[MAXIDLEN+1];
@@ -21,6 +22,40 @@ void skipspaces(FILE *tape) {
     ungetc(head, tape);
 }
 
+int isNUM(FILE *tape) {
+    int aux = getc(tape);
+
+    if (isdigit(aux)) {
+        ungetc(aux, tape);
+        fscanf(tape, "%lg", &lexval);
+        sprintf(lexeme, "%lg", lexval);
+
+        return NUM;
+    }
+
+    ungetc(aux, tape);
+
+    return 0;
+}
+
+int isASGN(FILE *tape) {
+    if ((lexeme[0] = getc(tape)) == ':') {
+        if ((lexeme[1] = getc(tape)) == '=') {
+            lexeme[2] = 0;
+
+            return ASGN;
+        }
+
+        ungetc(lexeme[1], tape);
+    } 
+
+    ungetc(lexeme[0], tape);
+    lexeme[0] = 0;
+
+    return 0;
+}
+
+/*
 // ID = [A-Za-z][A-Za-z0-9]*
 int isID(FILE *tape) {
     //int i = 0;
@@ -151,6 +186,7 @@ int isHEX(FILE *tape) {
     ungetc(lexeme[i], tape);  // Não é HEX, logo caractere é devolvido ao buffer
     return 0;
 }
+*/
 
 int gettoken(FILE *source) {  // Front-end do analisador léxico
     int token;
@@ -162,17 +198,15 @@ int gettoken(FILE *source) {  // Front-end do analisador léxico
         //printf("ID\n");
         return ID;
     }
-    else if ((token = isOCT(source))){
-        //printf("OCT\n");
-        return OCT;
+    
+    if ((token = isNUM(source))){
+        //printf("NUM\n");
+        return NUM;
     }
-    else if ((token = isHEX(source))) {
-        //printf("HEX\n");
-        return HEX;
-    }
-    else if ((token = isDEC(source))) {
-        //printf("DEC\n");
-        return DEC;
+    
+    if ((token = isASGN(source))) {
+        //printf("ASGN\n");
+        return ASGN;
     }
 
     token = getc(source);
