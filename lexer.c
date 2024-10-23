@@ -22,43 +22,8 @@ void skipspaces(FILE *tape) {
     ungetc(head, tape);
 }
 
-int isNUM(FILE *tape) {
-    int aux = getc(tape);
-
-    if (isdigit(aux)) {
-        ungetc(aux, tape);
-        fscanf(tape, "%lg", &lexval);
-        sprintf(lexeme, "%lg", lexval);
-
-        return NUM;
-    }
-
-    ungetc(aux, tape);
-
-    return 0;
-}
-
-int isASGN(FILE *tape) {
-    if ((lexeme[0] = getc(tape)) == ':') {
-        if ((lexeme[1] = getc(tape)) == '=') {
-            lexeme[2] = 0;
-
-            return ASGN;
-        }
-
-        ungetc(lexeme[1], tape);
-    } 
-
-    ungetc(lexeme[0], tape);
-    lexeme[0] = 0;
-
-    return 0;
-}
-
-/*
 // ID = [A-Za-z][A-Za-z0-9]*
 int isID(FILE *tape) {
-    //int i = 0;
     lexeme[i] = getc(tape);
 
     if (isalpha(lexeme[i])) {  // É ID
@@ -80,6 +45,44 @@ int isID(FILE *tape) {
     return 0;
 }
 
+// NUM = [0-9]+
+int isNUM(FILE *tape) {
+    int aux = getc(tape);
+
+    if (isdigit(aux)) {  // É NUM
+        ungetc(aux, tape);
+        fscanf(tape, "%lg", &lexval);
+        sprintf(lexeme, "%lg", lexval);
+
+        // Transição epsilon para estado ID
+        return NUM;
+    }
+
+    // Transição epsilon para estado zero
+    ungetc(aux, tape);  // Não é NUM, logo caractere é devolvido ao buffer
+    return 0;
+}
+
+// ASGN = [:=]
+int isASGN(FILE *tape) {
+    if ((lexeme[0] = getc(tape)) == ':') {
+        if ((lexeme[1] = getc(tape)) == '=') {  // É ASGN
+            lexeme[2] = 0;
+
+            // Transição epsilon para estado ASGN
+            return ASGN;
+        }
+
+        ungetc(lexeme[1], tape);  // Não é ASGN, logo caractere é devolvido ao buffer
+    } 
+
+    // Transição epsilon para estado zero
+    ungetc(lexeme[0], tape);  // Não é ASGN, logo caractere é devolvido ao buffer
+    lexeme[0] = 0;
+    return 0;
+}
+
+/*
 // DEC = [1-9][0-9]* | 0
 int isDEC(FILE *tape) {
     //int i = 0;
@@ -191,7 +194,6 @@ int isHEX(FILE *tape) {
 int gettoken(FILE *source) {  // Front-end do analisador léxico
     int token;
 
-    i = 0;
     skipspaces(source);  // Ignora os caracteres de espaço da entrada
     
     if ((token = isID(source))) {

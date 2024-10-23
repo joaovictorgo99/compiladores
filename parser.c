@@ -13,6 +13,12 @@ int sp = -1;
 
 // Funções
 void push(double x) {  // Empilha valor na pilha
+    if (sp > STACKSIZ) {  // Verifica se pilha está cheia
+        printf("\tstack is full\n");
+
+        return;
+    }
+    
     sp++;
     stack[sp] = x;
 }
@@ -23,7 +29,6 @@ double pop(void) {  // Desempilha valor na pilha
 
     return x;
 }
-/* PILHA */
 
 /* CALCULADORA */
 // Variáveis
@@ -50,9 +55,10 @@ double compute(int op, double x, double y) {  // Realiza a computação entre os
             ;
     }
 
+    printf("\tresult %lf\n", result);
+
     return result;
 }
-/* CALCULADORA */
 
 /* SÍMBOLOS */
 // Variáveis
@@ -66,30 +72,33 @@ int symtab_lookup(char *varname) {  // Busca e retorna a posição do símbolo d
     int i;
 
     for (i = 0; i < symtab_next_entry; i++) {
-        if (strcmp(varname, symtab[i]) == 0) {
+        if (strcmp(varname, symtab[i]) == 0) {  // Encontrou, retorna posição
             return i;
         }
     }
 
+    // Não encontrou, salva símbolo na tabela e retorna posição
     strcpy(symtab[i], varname);
-    
     return symtab_next_entry++;
 }
 
-void store(char *varname, double val) {  // Busca na memória e salva o valor
+void store(char *varname, double val) {  // Salva o valor na memória
     int i = symtab_lookup(varname);
+
+    if (symtab_next_entry > MAXSYMTABENTRIES) {  // Verifica se tabela está cheia
+        printf("\tstorage is full\n");
+
+        return;
+    }
 
     virtmem[i] = val;
 }
 
-double recall(char *varname) {  // Retorna o valor na memória
+double recall(char *varname) {  // Retorna o valor da memória
     int i = symtab_lookup(varname);
 
     return virtmem[i];
 }
-/* SÍMBOLOS */
-
-int lookahead;
 
 /*
 LL(1) grammar:
@@ -100,6 +109,8 @@ F -> ( E ) | ID | OCT | HEX | DEC
 A -> a A | <> ~ A -> { a }
 A -> b | <> ~ A -> [ b ]
 */
+
+int lookahead;
 
 // E -> [ ominus ] T { oplus T }
 void E(void) {  // Expressão
@@ -119,23 +130,28 @@ _T:
     T();
 
     /*2*/
-    if (ominus) {  // Imprimi o símbolo de negação
+    if (ominus) {  // Nega valor do acumulador e imprimi negação
         printf("\tneg acc\n");
-        // Ideia: acc = -acc;
+        acc = -acc;
+        printf("\tresult %lf\n", acc);
         ominus = 0;  // Reseta a variável
     }
     /*2*/
 
     /*3*/
-    if (oplus) {  // Imprimi o símbolo de adição ou subtração
+    if (oplus) {  // Realiza a adição ou subtração entre valores da pilha e acumulador
         switch(oplus) {
             case '+':
                 printf("\tadd stack[sp], acc\n");
-                // Ideia: acc = compute('+', stack[sp], acc);
+                printf("\tpop\n");
+                acc = compute('+', stack[sp], acc);  // Computa
+                pop();  // Desempilha
                 break;
             case '-':
                 printf("\tsub acc, stack[sp]\n");
-                printf("\tpop acc\n");
+                printf("\tpop\n");
+                acc = compute('-', stack[sp], acc);  // Computa
+                pop();  // Desempilha
                 break;
             default:  // Não faz nada
                 ;
@@ -145,17 +161,15 @@ _T:
     }
     /*3*/
 
-    if (lookahead == '+' || lookahead == '-') {
+    if (lookahead == '+' || lookahead == '-') {  // Token é símbolo de adição ou subtração
         /*4*/
-        oplus = lookahead;
+        oplus = lookahead;  // Variável recebe símbolo de adição ou subtração
         printf("\tpush acc\n");
-        // Ideia: push(acc);
+        push(acc);  // Empilha
         /*4*/
 
-        /*5*/int op = lookahead;/*5*/
         match(lookahead);
         goto _T;
-        /*6*/printf(" %c ", op);/*6*/
     }
 }
 
@@ -167,35 +181,44 @@ _F:
     F();
 
     /*1*/
-    if (otimes) {  // Imprimi o símbolo de multiplicação ou divisão
-        printf(" %c ", otimes);
+    if (otimes) {  // Realiza a multiplicação ou divisão entre valores da pilha e acumulador
+        switch(otimes) {
+            case '*':
+                printf("\tmul stack[sp], acc\n");
+                printf("\tpop\n");
+                acc = compute('*', stack[sp], acc);  // Computa
+                pop();  // Desempilha
+                break;
+            case '/':
+                printf("\tdiv stack[sp], acc\n");
+                printf("\tpop\n");
+                acc = compute('/', stack[sp], acc);  // Computa
+                pop();  // Desempilha
+                break;
+            default:  // Não faz nada
+                ;
+        }
+
         otimes = 0;  // Reseta a variável
     }
     /*1*/
 
-    if (lookahead == '*' || lookahead == '/') {
+    if (lookahead == '*' || lookahead == '/') {  // Token é símbolo de multiplicação ou divisão
         /*2*/
-        if (lookahead == '*') {  // Token é símbolo de multiplicação
-            otimes = '*';  // Variável recebe símbolo de multiplicação
-        }
+        otimes = lookahead;  // Variável recebe símbolo de multiplicação ou divisão
+        printf("\tpush acc\n");
+        push(acc);  // Empilha
         /*2*/
 
-        /*3*/
-        if (lookahead == '/') {  // Token é símbolo de divisão
-            otimes = '/';  // Variável recebe símbolo de divisão
-        }
-        /*3*/
-
-        /*4*/int op = lookahead;/*4*/
         match(lookahead);
         goto _F;
-        /*5*/printf(" %c ", op);/*5*/
     }
 }
 
 // F -> ( E ) | ID | OCT | HEX | DEC 
 void F(void) {  // Fator
-    /**/char varname[MAXIDLEN+1];/**/
+    /*0*/char varname[MAXIDLEN+1];/*0*/
+
     switch(lookahead) {
         case '(':
             match('(');
@@ -203,31 +226,32 @@ void F(void) {  // Fator
             match(')');
             break;
         case ID:
-            /*0*/printf(" %s ", lexeme);/*0*/
-            /**/strcpy(varname, lexeme);/**/
+            /*1*/strcpy(varname, lexeme);/*1*/
             match(ID);
             
             if (lookahead == ASGN) {
                 // L-value
                 match(ASGN);
                 E();
+                /*2*/
                 printf("\tstore acc, %s\n", varname);
-                // Ideia: store(varname, acc);
+                store(varname, acc);  // Armazena
+                /*2*/
             }
             else {
-                // certo?
-                // R-value (usa recall)
-                match(ASGN);
-                E();
-                printf("\recall acc, %s\n", varname);
-                // Ideia: recall(varname, acc);
-                // certo?
+                // R-value
+                /*3*/
+                printf("\trecall acc, %s\n", varname);
+                acc = recall(varname);  // Recupera
+                /*3*/
             }
             
             break;
         default:
-            /**/printf("\tmov %s, acc\n", lexeme);/**/
-            // Ideia: acc = atof(lexeme);
+            /*4*/
+            printf("\tmov %s, acc\n", lexeme);
+            acc = atof(lexeme);  // String para float
+            /*4*/
             match(NUM);
     }
 }
@@ -237,7 +261,9 @@ void match(int expected) {
         lookahead = gettoken(source);
     }
     else {  // Token não reconhecido
-        /*0*/fprintf(stderr, "token mismatch\n");/*0*/
+        /*0*/
+        fprintf(stderr, "token mismatch\n");
         exit(-3);
+        /*0*/
     }
 }

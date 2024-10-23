@@ -6,9 +6,11 @@ FILE *source;
 
 int main()
 {
-    source = stdin;
-    lookahead = gettoken(source);
-    E();
+    do {  // Loop para entrada
+        source = stdin;
+        lookahead = gettoken(source);
+        E();
+    } while (lookahead != EOF);
 
     return 0;
 }
