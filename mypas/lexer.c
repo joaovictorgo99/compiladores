@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <main.h>
 #include <ctype.h>
+#include <mypas/main.h>
 #include <mypas/lexer.h>
 
 double lexval;
