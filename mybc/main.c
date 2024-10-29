@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <parser.h>
-#include <lexer.h>
+#include <mybc/parser.h>
+#include <mybc/lexer.h>
 
 FILE *source;
 

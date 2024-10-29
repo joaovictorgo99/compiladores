@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <main.h>
-#include <lexer.h>
-#include <parser.h>
 #include <string.h>
+#include <mybc/main.h>
+#include <mybc/lexer.h>
+#include <mybc/parser.h>
 
 /* PILHA */
 // Variáveis

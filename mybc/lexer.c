@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include <main.h>
 #include <ctype.h>
-#include <lexer.h>
+#include <mybc/main.h>
+#include <mybc/lexer.h>
 
 double lexval;
 int linenum = 1;
