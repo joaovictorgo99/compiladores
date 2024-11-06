@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <ctype.h>
-#include <mypas/main.h>
-#include <mypas/lexer.h>
-#include <mypas/keywords.h>
+#include <mypas/parser_only/main.h>
+#include <mypas/parser_only/lexer.h>
+#include <mypas/parser_only/keywords.h>
 
 double lexval;
 int linenum = 1;
@@ -10,13 +10,25 @@ int i = 0;
 char lexeme[MAXIDLEN+1];
 
 // abc123 := a + b
-void skipspaces(FILE *tape) {
+void skipspaces_and_comments(FILE *tape) {
     int head;
 
-    while (isspace(head = getc(tape))) {  // Ignora caracteres de espaço, "consumindo-o"
-        if (head == '\n')
-            linenum++;  // Contabiliza o número de linhas
-    };
+    if ((head = getc(tape)) == '{') {
+        while ((head = getc(tape)) != '}') {
+            if (head == '\n')
+                linenum++;  // Contabiliza o número de linhas
+        }
+    }
+    else {
+        ungetc(head, tape);
+    }
+
+    if (isspace(head = getc(tape))) {
+        while (isspace(head = getc(tape))) {  // Ignora caracteres de espaço, "consumindo-o"
+            if (head == '\n')
+                linenum++;  // Contabiliza o número de linhas
+        }
+    }
 
     //printf("linenum: %d\n", linenum);
 
@@ -59,19 +71,47 @@ int isID(FILE *tape) {
 
 // NUM = [0-9]+
 int isNUM(FILE *tape) {
-    int aux = getc(tape);
+    char tape_copy[MAXIDLEN+1];
+    int index = 0;
+    int flag = 0;
 
-    if (isdigit(aux)) {  // É NUM
-        ungetc(aux, tape);
-        fscanf(tape, "%lg", &lexval);
-        sprintf(lexeme, "%lg", lexval);
+    fscanf(tape, "%s", &tape_copy);
 
-        // Transição epsilon para estado NUM
-        //return NUM;
+    if (isdigit(tape_copy[index])) {  // É NUM
+        while (index < MAXIDLEN) {
+            if (tape_copy[index] == '.') {
+                flag = 1;
+            }
+            
+            index++;
+        }
+
+        fscanf(tape, "%ld", &lexval);
+        sprintf(lexeme, "%ld", lexval);
+
+        if (flag == 0) {
+            if (atoi(tape_copy) <= 65535) {
+                // Transição epsilon para estado INTEGER
+                return UINT32;
+            }
+            else {
+                // Transição epsilon para estado LONG
+                return UINT64;
+            }
+        }
+        else {
+            if (atof(tape_copy) <= 3.4E+38) {
+                // Transição epsilon para estado REAL
+                return FLOAT32;
+            }
+            else {
+                // Transição epsilon para estado DOUBLE
+                return FLOAT64;
+            }
+        }
     }
 
     // Transição epsilon para estado zero
-    ungetc(aux, tape);  // Não é NUM, logo caractere é devolvido ao buffer
     return 0;
 }
 

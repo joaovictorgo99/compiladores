@@ -3,7 +3,9 @@
 #pragma once
 
 extern int lookahead;
+extern char lexeme[];
 extern void match(int);
+extern int gettoken(FILE *);
 void mypas(void);
 void idlist(void);
 void block(void);

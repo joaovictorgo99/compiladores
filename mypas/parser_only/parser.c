@@ -6,10 +6,10 @@ Source: Peter Grogono's "Programming in PASCAL" Addison Wesley 1980
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mypas/lexer.h>
-#include <mypas/parser.h>
-#include <mypas/keywords.h>
-#include <mypas/main.h>
+#include <mypas/parser_only/lexer.h>
+#include <mypas/parser_only/parser.h>
+#include <mypas/parser_only/keywords.h>
+#include <mypas/parser_only/main.h>
 
 int lookahead;
 
@@ -43,14 +43,8 @@ void block(void)
 void type(void) {
 	switch (lookahead) {
 		case INTEGER:
-			match(lookahead);
-			break;
 		case LONG:
-			match(lookahead);
-			break;
 		case REAL:
-			match(lookahead);
-			break;
 		case DOUBLE:
 			match(lookahead);
 			break;
@@ -215,7 +209,14 @@ _exprlst:
 }
 
 int isrelop(void) {
-
+	switch (lookahead) {
+		case '<':
+		case LEQ:
+		case NEQ:
+		case '>':
+		default:
+			return lookahead;
+	}
 }
 
 void expr(void) {
@@ -228,7 +229,15 @@ void expr(void) {
 }
 
 int isoplus(void) {
-
+	switch (lookahead) {
+		case '+':
+		case '-':
+		case 'OR':
+			return lookahead;
+			break;
+		default:
+			return 0;
+	}
 }
 
 void smpexpr(void) {
@@ -245,7 +254,17 @@ void smpexpr(void) {
 }
 
 int isotimes(void) {
-
+	switch (lookahead) {
+		case '*':
+		case '/':
+		case 'DIV':
+		case 'MOD':
+		case 'AND':
+			return lookahead;
+			break;
+		default:
+			return 0;
+	}
 }
 
 void term(void) {

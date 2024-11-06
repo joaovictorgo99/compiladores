@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <mypas/keywords.h>
+#include <mypas/parser_only/keywords.h>
 
 char *keyword[] = {
 	"begin",
