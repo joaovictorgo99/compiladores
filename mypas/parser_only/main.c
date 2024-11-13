@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <parser.h>
 
 FILE *source;
 
@@ -19,6 +20,10 @@ int main(int argc, char const *argv[])
 
             break;
     }
+    
+    do {
+    	lookahead = gettoken(source);
+    } while (lookahead != EOF);
 
     return 0;
 }

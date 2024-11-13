@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <mypas/parser_only/keywords.h>
+#include <keywords.h>
 
 char *keyword[] = {
 	"begin",
@@ -20,14 +20,14 @@ char *keyword[] = {
 	"mod",
 	"and",
 	"or",
-	"not"
+	"not",
 	"true",
 	"false",
-	"integer",
-	"long",
-	"real",
-	"double",
-	"boolean"
+	"integer",  // 32 bits
+	"long",  // 64 bits
+	"real",  // 32 bits
+	"double",  // 64 bits
+	"boolean",  // 1 byte ou 4 bytes
 	"end"
 };
 

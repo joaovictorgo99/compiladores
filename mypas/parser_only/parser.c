@@ -6,10 +6,10 @@ Source: Peter Grogono's "Programming in PASCAL" Addison Wesley 1980
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mypas/parser_only/lexer.h>
-#include <mypas/parser_only/parser.h>
-#include <mypas/parser_only/keywords.h>
-#include <mypas/parser_only/main.h>
+#include <lexer.h>
+#include <parser.h>
+#include <keywords.h>
+#include <main.h>
 
 int lookahead;
 
@@ -42,15 +42,21 @@ void block(void)
 
 void type(void) {
 	switch (lookahead) {
-		case INTEGER:
-		case LONG:
-		case REAL:
-		case DOUBLE:
-			match(lookahead);
-			break;
-		default:
-			match(BOOLEAN);
-	}
+        case INTEGER:
+            match(lookahead);
+            break;
+        case LONG:
+            match(lookahead);
+            break;
+        case REAL:
+            match(lookahead);
+            break;
+        case DOUBLE:
+            match(lookahead);
+            break;
+        default:
+            match(BOOLEAN);
+    }
 }
 
 void vardef(void) {
@@ -130,8 +136,7 @@ _parmlst:
 		}
 
 		match(')');
-	}
-	else {
+	} else {
 		;
 	}
 }
@@ -147,8 +152,7 @@ void stmt(void) {
 			if (lookahead == ASGN) {
 				match(ASGN);
 				expr();
-			}
-			else {
+			} else {
 				exprlst();
 			}
 
@@ -214,8 +218,11 @@ int isrelop(void) {
 		case LEQ:
 		case NEQ:
 		case '>':
-		default:
+		case GEQ:
 			return lookahead;
+			break;
+		default:
+			return 0;
 	}
 }
 
@@ -232,7 +239,7 @@ int isoplus(void) {
 	switch (lookahead) {
 		case '+':
 		case '-':
-		case 'OR':
+		case OR:
 			return lookahead;
 			break;
 		default:
@@ -257,9 +264,9 @@ int isotimes(void) {
 	switch (lookahead) {
 		case '*':
 		case '/':
-		case 'DIV':
-		case 'MOD':
-		case 'AND':
+		case DIV:
+		case MOD:
+		case AND:
 			return lookahead;
 			break;
 		default:
@@ -283,8 +290,8 @@ void factor(void) {
 			exprlst();
 			break;
 		/*
-		case NUM:  // Constante sem sinal
-			match(NUM);
+		case ALGO:  // fazer pra todos
+			match(ALGO);
 			break;
 		*/
 		case NOT:
@@ -301,10 +308,12 @@ void factor(void) {
 void match(int expected) {
 	if (lookahead == expected) {
 		lookahead = gettoken(source);
-	}
-	else {
-		fprintf(stderr, "syntax error at line %i\n", linenum);
-		exit(-3);
+	} else if (expected == EOF) {
+		fprintf(stderr, "premature EOF found at line %d\n", linenum);
+		exit(-1);
+	} else {
+		fprintf(stderr, "syntax error at line %d\n", linenum);
+		exit(-4);
 	}
 }
 

@@ -4,8 +4,9 @@
 
 extern int lookahead;
 extern char lexeme[];
-extern void match(int);
+extern void match(int expected);
 extern int gettoken(FILE *);
+extern FILE *source;
 void mypas(void);
 void idlist(void);
 void block(void);
