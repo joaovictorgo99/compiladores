@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#pragma once
+
 #define MAXIDLEN 32
 
 #define ID 1024

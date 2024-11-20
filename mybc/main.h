@@ -1,3 +1,3 @@
 #include <stdio.h>
 
-extern FILE *source;
+#pragma once

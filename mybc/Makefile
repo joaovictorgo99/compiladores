@@ -1,6 +1,6 @@
 CFLAGS = -I. -g
 
-reloc = main.o lexer.o parser.o
+reloc = main.o lexer.o parser.o mybc.o
 mybc: $(reloc)
 	$(CC) -o mybc $(reloc)
 

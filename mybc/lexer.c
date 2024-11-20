@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <ctype.h>
-#include <mybc/main.h>
-#include <mybc/lexer.h>
+#include <main.h>
+#include <lexer.h>
 
 double lexval;
 int linenum = 1;
 int i = 0;
 char lexeme[MAXIDLEN+1];
 
-// abc123 := a + b
+// a op b; = aopb;
 void skipspaces(FILE *tape) {
     int head;
 
@@ -24,13 +24,16 @@ void skipspaces(FILE *tape) {
 
 // ID = [A-Za-z][A-Za-z0-9]*
 int isID(FILE *tape) {
+    i = 0;
     lexeme[i] = getc(tape);
 
     if (isalpha(lexeme[i])) {  // É ID
         i++;
         
         while (isalnum(lexeme[i] = getc(tape))) {  // Itera enquanto caractere pertencer ao formato ID
-            i++;
+            if (i < MAXIDLEN) {  // Verifica se comprimento de lexeme não é maior que MAXIDLEN
+                i++;
+            }
         }
 
         // Transição epsilon para estado ID
@@ -47,6 +50,7 @@ int isID(FILE *tape) {
 
 // NUM = [0-9]+
 int isNUM(FILE *tape) {
+    i = 0;
     int aux = getc(tape);
 
     if (isdigit(aux)) {  // É NUM
@@ -54,7 +58,7 @@ int isNUM(FILE *tape) {
         fscanf(tape, "%lg", &lexval);
         sprintf(lexeme, "%lg", lexval);
 
-        // Transição epsilon para estado ID
+        // Transição epsilon para estado NUM
         return NUM;
     }
 
@@ -65,6 +69,7 @@ int isNUM(FILE *tape) {
 
 // ASGN = [:=]
 int isASGN(FILE *tape) {
+    i = 0;
     if ((lexeme[0] = getc(tape)) == ':') {
         if ((lexeme[1] = getc(tape)) == '=') {  // É ASGN
             lexeme[2] = 0;
@@ -85,7 +90,7 @@ int isASGN(FILE *tape) {
 /*
 // DEC = [1-9][0-9]* | 0
 int isDEC(FILE *tape) {
-    //int i = 0;
+    int i = 0;
     lexeme[i] = getc(tape);
 
     if (lexeme[i] == '\n') {  // É DEC, vindo de OCT ou HEX, zero
@@ -117,7 +122,7 @@ int isDEC(FILE *tape) {
 
 // OCT = 0[0-7]+
 int isOCT(FILE *tape) {
-    //int i = 0;
+    int i = 0;
     lexeme[i] = getc(tape);
 
     if (lexeme[i] == '0') {
@@ -155,7 +160,7 @@ int isOCT(FILE *tape) {
 
 // HEX = 0[xX][0-9a-fA-F]+
 int isHEX(FILE *tape) {
-    //int i = 1;
+    int i = 1;
     lexeme[i] = getc(tape);
 
     if (lexeme[i] == '\n') {
@@ -193,6 +198,7 @@ int isHEX(FILE *tape) {
 
 int gettoken(FILE *source) {  // Front-end do analisador léxico
     int token;
+    i = 0;
 
     skipspaces(source);  // Ignora os caracteres de espaço da entrada
     
