@@ -156,6 +156,7 @@ _T:
     }
     /*3*/
 
+    //looping responsavel por continuar a verificacao se tem simbolo
     if (lookahead == '+' || lookahead == '-') {  // Token é símbolo de adição ou subtração
         /*4 notacao semantica*/
         oplus = lookahead;  // Variável recebe símbolo de adição ou subtração
@@ -163,8 +164,8 @@ _T:
         push(acc);  // Empilha
         /*4*/
 
-        match(lookahead);
-        goto _T;
+        match(lookahead); //identifica simbolo
+        goto _T; //processa e faz o calculo
     }
 }
 
