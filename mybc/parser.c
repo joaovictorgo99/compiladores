@@ -106,10 +106,12 @@ int lookahead;
 
 // E -> [ ominus ] T { oplus T }
 void E(void) {  // Expressão
-    /*0*/int ominus = 0, oplus = 0;/*0*/
+    /*0 notacao semantica*/
+    int ominus = 0, oplus = 0;
+    /*0*/
 
     if (lookahead == '+' || lookahead == '-') {
-        /*1*/
+        /*1 notacao semantica*/
         if (lookahead == '-') {  // Token é símbolo de negação
             ominus = '-';  // Variável recebe símbolo de negação
         }
@@ -121,7 +123,7 @@ void E(void) {  // Expressão
 _T:
     T();
 
-    /*2*/
+    /*2 notacao semantica*/
     if (ominus) {  // Nega valor do acumulador
         //printf("\tneg acc\n");
         acc = -acc;
@@ -131,7 +133,7 @@ _T:
     }
     /*2*/
 
-    /*3*/
+    /*3 notacao semantica*/
     if (oplus) {  // Realiza a adição ou subtração entre valores da pilha e acumulador
         switch(oplus) {
             case '+':
@@ -155,7 +157,7 @@ _T:
     /*3*/
 
     if (lookahead == '+' || lookahead == '-') {  // Token é símbolo de adição ou subtração
-        /*4*/
+        /*4 notacao semantica*/
         oplus = lookahead;  // Variável recebe símbolo de adição ou subtração
         //printf("\tpush acc\n");
         push(acc);  // Empilha
@@ -168,12 +170,12 @@ _T:
 
 // T -> F { otimes F }
 void T(void) {  // Termo
-    /*0*/int otimes = 0;/*0*/
+    /*0 notacao semantica*/int otimes = 0;/*0*/
     
 _F:
     F();
 
-    /*1*/
+    /*1 notacao semantica*/
     if (otimes) {  // Realiza a multiplicação ou divisão entre valores da pilha e acumulador
         switch(otimes) {
             case '*':
@@ -197,7 +199,7 @@ _F:
     /*1*/
 
     if (lookahead == '*' || lookahead == '/') {  // Token é símbolo de multiplicação ou divisão
-        /*2*/
+        /*2 notacao semantica*/
         otimes = lookahead;  // Variável recebe símbolo de multiplicação ou divisão
         //printf("\tpush acc\n");
         push(acc);  // Empilha
@@ -210,7 +212,9 @@ _F:
 
 // F -> ( E ) | ID | OCT | HEX | DEC 
 void F(void) {  // Fator
-    /*0*/char varname[MAXIDLEN+1];/*0*/
+    /*0 notacao semantica*/
+    char varname[MAXIDLEN+1];
+    /*0*/
 
     switch(lookahead) {
         case '(':
@@ -219,14 +223,16 @@ void F(void) {  // Fator
             match(')');
             break;
         case ID:
-            /*1*/strcpy(varname, lexeme);/*1*/
+            /*1 notacao semantica*/
+            strcpy(varname, lexeme);
+            /*1*/
             match(ID);
             
             if (lookahead == ASGN) {
                 // L-value
                 match(ASGN);
                 E();
-                /*2*/
+                /*2 notacao semantica*/
                 result = 0;  // Zera result para impressão de ASGN
                 //printf("\tstore acc, %s\n", varname);
                 store(varname, acc);  // Armazena
@@ -234,14 +240,14 @@ void F(void) {  // Fator
             }
             else {
                 // R-value
-                /*3*/
+                /*3 notacao semantica*/
                 //printf("\trecall acc, %s\n", varname);
                 acc = recall(varname);  // Recupera
                 /*3*/
             }
             break;
         default:
-            /*4*/
+            /*4 notacao semantica*/
             //printf("\tmov %s, acc\n", lexeme);
             acc = atof(lexeme);  // String para float
             /*4*/
@@ -254,7 +260,7 @@ void match(int expected) {
         lookahead = gettoken(source);
     }
     else {  // Token não reconhecido
-        /*0*/
+        /*0 notacao semantica*/
         fprintf(stderr, "token mismatch\n");
         exit(-3);
         /*0*/
