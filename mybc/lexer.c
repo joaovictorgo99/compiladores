@@ -51,12 +51,12 @@ int isID(FILE *tape) {
 // NUM = [0-9]+
 int isNUM(FILE *tape) {
     i = 0;
-    int aux = getc(tape); //consome a fita
+    int aux = getc(tape);  // Consome a fita
 
     if (isdigit(aux)) {  // É NUM
-        ungetc(aux, tape); //devolve para a fita para pegar completo
-        fscanf(tape, "%lg", &lexval); //colo o que esta em tape em lexval
-        sprintf(lexeme, "%lg", lexval); //passo o que esta em lexval um inteiro para lexeme
+        ungetc(aux, tape);  // Devolve para a fita para pegar completo
+        fscanf(tape, "%lg", &lexval);  // Cola o que esta em tape em lexval
+        sprintf(lexeme, "%lg", lexval);  // Passa o que esta em lexval em inteiro para lexeme
 
         // Transição epsilon para estado NUM
         return NUM;
@@ -67,7 +67,7 @@ int isNUM(FILE *tape) {
     return 0;
 }
 
-// ASGN = [:=] //atribuicao
+// ASGN = [:=]  // Atribuição
 int isASGN(FILE *tape) {
     i = 0;
     if ((lexeme[0] = getc(tape)) == ':') {

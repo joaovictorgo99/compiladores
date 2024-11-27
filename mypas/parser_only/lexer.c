@@ -43,17 +43,15 @@ _skipspaces_and_comments:
 // ID = [A-Za-z][A-Za-z0-9]*
 int isID(FILE *tape) {
     int keyword;
+    i = 0;
     lexeme[i] = getc(tape);
 
     if (isalpha(lexeme[i])) {  // É ID
         i++;
         
         while (isalnum(lexeme[i] = getc(tape))) {  // Itera enquanto caractere pertencer ao formato ID
-            i++;
-
-            if (i > MAXIDLEN) {
-                // printf("MAXIDLEN"); // remover do lexer
-                break;
+            if (i < MAXIDLEN) {
+                i++;
             }
         }
 
@@ -77,42 +75,42 @@ int isID(FILE *tape) {
 // NUM = [0-9]+[.]*[0-9]+
 int isNUM(FILE *tape) {
     int isfloat = 0;
+    i = 0;
 
 _isNUM:
     lexeme[i] = getc(tape);
 
-    if (isdigit(lexeme[i])) {
+    if (isdigit(lexeme[i])) {  // É NUM
         i++;
 
-        while (isdigit(lexeme[i] = getc(tape))) {
+        while (isdigit(lexeme[i] = getc(tape))) {  // Itera enquanto caractere for dígito
             i++;
         }
 
-        if (lexeme[i] == '.') {
-            isfloat = 1;
+        if (lexeme[i] == '.') {  // Verfica se caractere é um separador decimal
+            isfloat = 1;  // Flag para verificar se é float
             i++;
 
             goto _isNUM;
         }
 
-        if (isfloat == 0) {
-            ungetc(lexeme[i], tape);
+        if (isfloat == 0) {  // É NUM, UINT32-integer
+            // Transição epsilon para estado NUM, UINT32-integer
+            ungetc(lexeme[i], tape);  // Caractere não pertence ao formato NUM, logo caractere é devolvido ao buffer
             lexeme[i] = 0;
             return UINT32;
-        } else {
-            ungetc(lexeme[i], tape);
+        } else {  // É NUM, FLOAT32-real
+            // Transição epsilon para estado NUM, FLOAT32-real
+            ungetc(lexeme[i], tape);  // Caractere não pertence ao formato NUM, logo caractere é devolvido ao buffer
             lexeme[i] = 0;
             return FLOAT32;
         }
     }
 
-    ungetc(lexeme[i], tape);
+    // Transição epsilon para estado zero
+    ungetc(lexeme[i], tape);  // Não é NUM, logo caractere é devolvido ao buffer
+    lexeme[0] = 0;
     return 0;
-}
-
-// BOOLEAN = [TRUE-FALSE]
-int isBOOLEAN(FILE *tape) {
-
 }
 
 // RELOP = [<=>]
@@ -121,30 +119,31 @@ int isRELOP(FILE *tape) {
 
 	switch (lexeme[0] = getc(tape)) {
 		case '<':
-			if ((lexeme[1] = getc(tape)) == '=') {
-				return LEQ;
+			if ((lexeme[1] = getc(tape)) == '=') {  // É RELOP, <=
+				return LEQ;  // Transição epsilon para estado RELOP, <=
 			}
 
-			if (lexeme[1] == '>') {
-				return NEQ;
+			if (lexeme[1] == '>') {  // É RELOP, <>
+				return NEQ;  // Transição epsilon para estado RELOP, <>
 			}
 
-			ungetc(lexeme[1], tape);
+			ungetc(lexeme[1], tape);  // Não é RELOP, logo caractere é devolvido ao buffer
 			lexeme[1] = 0;
 			return lexeme[0];
 		case '>':
-			if ((lexeme[1] = getc(tape)) == '=') {
-				return GEQ;
+			if ((lexeme[1] = getc(tape)) == '=') {  // É RELOP, >=
+				return GEQ;  // Transição epsilon para estado RELOP, >=
 			}
 
-			ungetc(lexeme[1], tape);
+			ungetc(lexeme[1], tape);  // Não é RELOP, logo caractere é devolvido ao buffer
 			lexeme[1] = 0;
 			return lexeme[0];
 		default:  // Não faz nada
 			;
 	}
 
-	ungetc(lexeme[0], tape);
+    // Transição epsilon para estado zero
+	ungetc(lexeme[0], tape);  // Não é RELOP, logo caractere é devolvido ao buffer
 	lexeme[1] = 0;
 	return 0;
 }
@@ -279,6 +278,7 @@ int isHEX(FILE *tape) {
 
 int gettoken(FILE *source) {  // Front-end do analisador léxico
     int token;
+    i = 0;
 
     skipspaces_and_comments(source);  // Ignora os caracteres de espaço e comentários da entrada
     
@@ -291,12 +291,7 @@ int gettoken(FILE *source) {  // Front-end do analisador léxico
         //printf("NUM\n");
         return token;
     }
-/*
-    if ((token = isBOOLEAN(source))){
-        //printf("BOOLEAN\n");
-        return token;
-    }
-*/  
+    
     if ((token = isASGN(source))) {
         //printf("ASGN\n");
         return token;

@@ -106,24 +106,24 @@ int lookahead;
 
 // E -> [ ominus ] T { oplus T }
 void E(void) {  // Expressão
-    /*0 notacao semantica*/
+    /*0 anotação semântica*/
     int ominus = 0, oplus = 0;
     /*0*/
 
     if (lookahead == '+' || lookahead == '-') {
-        /*1 notacao semantica*/
+        /*1 anotação semântica*/
         if (lookahead == '-') {  // Token é símbolo de negação
             ominus = '-';  // Variável recebe símbolo de negação
         }
         /*1*/
 
-        match(lookahead); //confirma que a estrutura do E esta correta [E -> E - T]
+        match(lookahead);  // Confirma que a estrutura do E esta correta [E -> E - T]
     }
 
 _T:
     T();
 
-    /*2 notacao semantica*/
+    /*2 anotação semântica*/
     if (ominus) {  // Nega valor do acumulador
         //printf("\tneg acc\n");
         acc = -acc;
@@ -133,7 +133,7 @@ _T:
     }
     /*2*/
 
-    /*3 notacao semantica*/
+    /*3 anotação semântica*/
     if (oplus) {  // Realiza a adição ou subtração entre valores da pilha e acumulador
         switch(oplus) {
             case '+':
@@ -156,30 +156,30 @@ _T:
     }
     /*3*/
 
-    //looping responsavel por continuar a verificacao se tem simbolo
+    // Looping responsável por continuar a verificação se tem símbolo
     if (lookahead == '+' || lookahead == '-') {  // Token é símbolo de adição ou subtração
-        /*4 notacao semantica*/
+        /*4 anotação semântica*/
         oplus = lookahead;  // Variável recebe símbolo de adição ou subtração
         //printf("\tpush acc\n");
         push(acc);  // Empilha
         /*4*/
 
-        match(lookahead); //identifica simbolo
-        goto _T; //processa e faz o calculo
+        match(lookahead);  // Identifica símbolo
+        goto _T;  // Processa e faz o cálculo
     }
 }
 
 // T -> F { otimes F }
 void T(void) {  // Termo
-    /*0 notacao semantica*/
+    /*0 anotação semântica*/
     int otimes = 0;
     /*0*/
 
-    //lembrando que estamos trabalhando com calculos na forma posfixa (2 5 * => 2 * 5)
+    // Lembrando que estamos trabalhando com cálculos na forma posfixa (2 5 * => 2 * 5)
 _F:
     F();
 
-    /*1 notacao semantica*/
+    /*1 anotação semântica*/
     if (otimes) {  // Realiza a multiplicação ou divisão entre valores da pilha e acumulador
         switch(otimes) {
             case '*':
@@ -203,7 +203,7 @@ _F:
     /*1*/
 
     if (lookahead == '*' || lookahead == '/') {  // Token é símbolo de multiplicação ou divisão
-        /*2 notacao semantica*/
+        /*2 anotação semântica*/
         otimes = lookahead;  // Variável recebe símbolo de multiplicação ou divisão
         //printf("\tpush acc\n");
         push(acc);  // Empilha
@@ -216,7 +216,7 @@ _F:
 
 // F -> ( E ) | ID | OCT | HEX | DEC 
 void F(void) {  // Fator
-    /*0 notacao semantica*/
+    /*0 anotação semântica*/
     char varname[MAXIDLEN+1];
     /*0*/
 
@@ -227,7 +227,7 @@ void F(void) {  // Fator
             match(')');
             break;
         case ID:
-            /*1 notacao semantica*/
+            /*1 anotação semântica*/
             strcpy(varname, lexeme);
             /*1*/
             match(ID);
@@ -236,7 +236,7 @@ void F(void) {  // Fator
                 // L-value
                 match(ASGN);
                 E();
-                /*2 notacao semantica*/
+                /*2 anotação semântica*/
                 result = 0;  // Zera result para impressão de ASGN
                 //printf("\tstore acc, %s\n", varname);
                 store(varname, acc);  // Armazena
@@ -244,14 +244,14 @@ void F(void) {  // Fator
             }
             else {
                 // R-value
-                /*3 notacao semantica*/
+                /*3 anotação semântica*/
                 //printf("\trecall acc, %s\n", varname);
                 acc = recall(varname);  // Recupera
                 /*3*/
             }
             break;
         default:
-            /*4 notacao semantica*/
+            /*4 anotação semântica*/
             //printf("\tmov %s, acc\n", lexeme);
             acc = atof(lexeme);  // String para float
             /*4*/
@@ -264,7 +264,7 @@ void match(int expected) {
         lookahead = gettoken(source);
     }
     else {  // Token não reconhecido
-        /*0 notacao semantica*/
+        /*0 anotação semântica*/
         fprintf(stderr, "token mismatch\n");
         exit(-3);
         /*0*/

@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <parser.h>
+#include <main.h>
 
 FILE *source;
 
 int main(int argc, char const *argv[])
 {
-    switch (argc) {
+    switch (argc) {  // Verifica o arquivo passado
         case 1:
             fprintf(stderr, "%s: missing source file name\n", argv[0]);
             exit(-2);
@@ -20,10 +21,9 @@ int main(int argc, char const *argv[])
 
             break;
     }
-    
-    do {
-    	lookahead = gettoken(source);
-    } while (lookahead != EOF);
 
+    lookahead = gettoken(source);
+    mypas();  // Chama o programa
+   
     return 0;
 }
