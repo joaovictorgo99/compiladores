@@ -171,8 +171,11 @@ _T:
 
 // T -> F { otimes F }
 void T(void) {  // Termo
-    /*0 notacao semantica*/int otimes = 0;/*0*/
-    
+    /*0 notacao semantica*/
+    int otimes = 0;
+    /*0*/
+
+    //lembrando que estamos trabalhando com calculos na forma posfixa (2 5 * => 2 * 5)
 _F:
     F();
 
