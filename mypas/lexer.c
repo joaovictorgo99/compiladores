@@ -16,7 +16,7 @@ void skipspaces_and_comments(FILE *tape) {
 
 _skipspaces_and_comments:
     head = getc(tape);
-    printf("%d\n", head);
+    //printf("%d\n", head);
 
     if (isspace(head)) {
         while (isspace(head = getc(tape))) {  // Ignora caracteres de espaço, "consumindo-o"
@@ -58,7 +58,7 @@ int isID(FILE *tape) {
         // Transição epsilon para estado ID
         ungetc(lexeme[i], tape);  // Caractere não pertence ao formato ID, logo caractere é devolvido ao buffer
         lexeme[i] = 0;
-        printf("%s\n", lexeme);
+        //printf("%s\n", lexeme);
 
         if ((keyword = iskeyword(lexeme))) {
             return keyword;

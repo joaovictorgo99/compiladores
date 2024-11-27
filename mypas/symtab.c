@@ -9,7 +9,7 @@ int symtab_next_entry = 0;
 int symtab_lookup(char const *name, int lexlevel) {  // Busca e retorna a posição do símbolo da tabela
     int i;
 
-    printf("\tlook %d\n", lexlevel);
+    //printf("\tlook %d\n", lexlevel);
 
     for (i = 0; i < symtab_next_entry; i++) {
         if (strcmp(name, symtab[i].name) == 0 && symtab[i].lexlevel == lexlevel) {  // Encontrou, retorna posição
@@ -24,7 +24,7 @@ int symtab_lookup(char const *name, int lexlevel) {  // Busca e retorna a posiç
 int symtab_append(char const *name, int lexlevel) {  // Salva símbolo na tabela de símbolos
     int i = symtab_lookup(name, lexlevel);
 
-    printf("\tappend %d\n", lexlevel);
+    //printf("\tappend %d\n", lexlevel);
 
     if (i > SYMTAB_SIZE) {  // Verifica se tabela de símbolos está cheia
         return -2;
