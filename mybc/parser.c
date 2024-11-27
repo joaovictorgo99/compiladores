@@ -115,7 +115,7 @@ void E(void) {  // Expressão
         }
         /*1*/
 
-        match(lookahead);
+        match(lookahead); //confirma que a estrutura do E esta correta [E -> E - T]
     }
 
 _T:
