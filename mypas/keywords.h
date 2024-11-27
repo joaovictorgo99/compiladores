@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#pragma once
+
 enum {
 	BEGIN = 0X1000000,
 	PROGRAM,

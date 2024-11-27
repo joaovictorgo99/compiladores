@@ -6,77 +6,110 @@ Source: Peter Grogono's "Programming in PASCAL" Addison Wesley 1980
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mypas/lexer.h>
-#include <mypas/parser.h>
-#include <mypas/keywords.h>
-#include <mypas/main.h>
+#include <lexer.h>
+#include <parser.h>
+#include <keywords.h>
+#include <main.h>
+#include <symtab.h>
 
 int lookahead;
+int lexlevel = 1;  // Variável para nível léxico
+int error_counter = 0;  // Variável para contador de erros
 
-void mypas(void) {
+void mypas(void) {  // Programa
 	match(PROGRAM);
 	match(ID);
-	match(')');
-	idlist();  // Introduced on Wed, 23 oct 2024
 	match('(');
+	idlist();
+	match(')');
 	match(';');
 	block();
 	match('.');
 }
 
-void idlist(void) {
+int idlist(void) {  // Lista de identficadores
+	int first_index = symtab_next_entry;
+	int error_status;
+
 _idlist:
+	if ((error_status = symtab_append(lexeme, lexlevel))) {
+		error_counter++;
+
+		if (error_status == -2) {
+			fprintf(stderr, "symtab overflow\n");
+		}
+
+		if (error_status == -3) {
+			fprintf(stderr, "symbol already existing in the same lexlevel\n");
+			lexlevel++; // e' isso msm?
+			goto _idlist; // e' isso msm?
+		}
+	}
+
 	match(ID);
+
 	if (lookahead == ',') {
 		match(',');
 		goto _idlist;
 	}
+
+	return first_index;
 }
 
-void block(void)
-{
+void block(void) {  // Bloco
 	vardef();
 	subprogs();
 	beginstmt();
 }
 
-void type(void) {
+int type(void) {  // Tipo
+	int t = 0;
+
 	switch (lookahead) {
-		case INTEGER:
-			match(lookahead);
-			break;
-		case LONG:
-			match(lookahead);
-			break;
-		case REAL:
-			match(lookahead);
-			break;
-		case DOUBLE:
-			match(lookahead);
-			break;
-		default:
-			match(BOOLEAN);
-	}
+        case INTEGER:
+        case LONG:
+        case REAL:
+        case DOUBLE:
+			t = lookahead;
+            match(lookahead);
+            break;
+        default:
+            match(BOOLEAN);
+			return BOOLEAN;
+    }
+
+	return t;
 }
 
-void vardef(void) {
+void vardef(void) {  // Variável
+	int i, j, t;
+
 	if (lookahead == VAR) {
 		match(VAR);
 
 _idlist:
-		idlist();
+		i = idlist();
+		j = symtab_next_entry;
 		match(':');
-		type();
+		t = type();
+
+		for (i; i < j; i++) {
+			symtab[i].objtype = 0;
+			symtab[i].type = t;
+			strcpy(symtab[i].offset, "");
+		}
+
 		match(';');
+
 		if (lookahead == ID) {
 			goto _idlist;
 		}
 	}
 }
 
-void subprogs(void) {
+void subprogs(void) {  // Subprograma
 	while (lookahead == PROCEDURE || lookahead == FUNCTION) {
-		int hasfunc = 0;
+		int hasfunc = 0, i, j, t;
 
 		switch (lookahead) {
 			case PROCEDURE:
@@ -87,27 +120,44 @@ void subprogs(void) {
 				hasfunc = 1;
 		}
 
-		match(ID);
+		lexlevel++;
+		i = idlist();
+		j = symtab_next_entry;
+		
 		parmlst();
 
 		if (hasfunc) {
 			match(':');
-			type();
+			t = type();
+
+			for (i; i < j; i++) {
+				symtab[i].objtype = 2;
+				symtab[i].type = t;
+				strcpy(symtab[i].offset, "");
+			}
+		} else {
+			for (i; i < j; i++) {
+				symtab[i].objtype = 3;
+				symtab[i].type = t;
+				strcpy(symtab[i].offset, "");
+			}
 		}
 
 		match(';');
 		block();
 		match(';');
+
+		lexlevel--;
 	}
 }
 
-void beginstmt(void) {
+void beginstmt(void) {  // Início de declarações
 	match(BEGIN);
 	stmtlst();
 	match(END);
 }
 
-void stmtlst(void) {
+void stmtlst(void) {  // Lista de declarações
 _stmtlst:
 	stmt();
 
@@ -117,7 +167,9 @@ _stmtlst:
 	}
 }
 
-void parmlst(void) {
+void parmlst(void) {  // Lista de parâmetros
+    int i, j, t;
+
 	if (lookahead == '(') {
 		match('(');
 
@@ -126,9 +178,16 @@ _parmlst:
 			match(VAR);
 		}
 
-		idlist();
+		i = idlist();
+        j = symtab_next_entry;
 		match(':');
-		type();
+		t = type();
+
+		for (i; i < j; i++) {
+			symtab[i].objtype = 1;
+			symtab[i].type = t;
+			strcpy(symtab[i].offset, "");
+		}
 
 		if (lookahead == ';') {
 			match(';');
@@ -136,13 +195,12 @@ _parmlst:
 		}
 
 		match(')');
-	}
-	else {
+	} else {
 		;
 	}
 }
 
-void stmt(void) {
+void stmt(void) {  // Declaração
 	switch (lookahead) {
 		case BEGIN:
 			beginstmt();
@@ -153,8 +211,7 @@ void stmt(void) {
 			if (lookahead == ASGN) {
 				match(ASGN);
 				expr();
-			}
-			else {
+			} else {
 				exprlst();
 			}
 
@@ -173,7 +230,7 @@ void stmt(void) {
 	}
 }
 
-void ifstmt(void) {
+void ifstmt(void) {  // Declaração "se"
 	match(IF);
 	expr();
 	match(THEN);
@@ -185,21 +242,21 @@ void ifstmt(void) {
 	}
 }
 
-void repstmt(void) {
+void repstmt(void) {  // Declaração "repetir"
 	match(REPEAT);
 	stmtlst();
 	match(UNTIL);
 	expr();
 }
 
-void whilestmt(void) {
+void whilestmt(void) {  // Declaração "enquanto"
 	match(WHILE);
 	expr();
 	match(DO);
 	stmt();
 }
 
-void exprlst(void) {
+void exprlst(void) {  // Lista de expressões
 	if (lookahead == '(') {
 		match('(');
 _exprlst:
@@ -214,11 +271,21 @@ _exprlst:
 	}
 }
 
-int isrelop(void) {
-
+int isrelop(void) {  // Verifica se token é símbolo de menor, menor ou igual, não igual, maior ou maior ou igual
+	switch (lookahead) {
+		case '<':
+		case LEQ:
+		case NEQ:
+		case '>':
+		case GEQ:
+			return lookahead;
+			break;
+		default:
+			return 0;
+	}
 }
 
-void expr(void) {
+void expr(void) {  // Expressão
 	smpexpr();
 
 	if (isrelop()) {
@@ -227,12 +294,20 @@ void expr(void) {
 	}
 }
 
-int isoplus(void) {
-
+int isoplus(void) {  // Verifica se token é símbolo de adição, subtração ou OU
+	switch (lookahead) {
+		case '+':
+		case '-':
+		case OR:
+			return lookahead;
+			break;
+		default:
+			return 0;
+	}
 }
 
-void smpexpr(void) {
-	if (lookahead == '+' || lookahead == '-') {
+void smpexpr(void) {  // Expressão simples
+	if (lookahead == '+' || lookahead == '-') {  // Token é símbolo de adição ou subtração
 		match(lookahead);
 	}
 
@@ -244,11 +319,21 @@ void smpexpr(void) {
 	}
 }
 
-int isotimes(void) {
-
+int isotimes(void) {  // Verifica se token é símbolo de multiplicação, divisão, divisão inteira, módulo ou E
+	switch (lookahead) {
+		case '*':
+		case '/':
+		case DIV:
+		case MOD:
+		case AND:
+			return lookahead;
+			break;
+		default:
+			return 0;
+	}
 }
 
-void term(void) {
+void term(void) {  // Termo
 	factor();
 
 	while (isotimes()) {
@@ -257,17 +342,24 @@ void term(void) {
 	}
 }
 
-void factor(void) {
+void factor(void) {  // Fator
 	switch (lookahead) {
 		case ID:
-			match(ID);  // Pode ser um identificador de variável ou função
+			match(ID);
 			exprlst();
 			break;
-		/*
-		case NUM:  // Constante sem sinal
-			match(NUM);
+		case UINT32:
+			match(UINT32);
 			break;
-		*/
+		case UINT64:
+			match(UINT64);
+			break;
+		case FLOAT32:
+			match(FLOAT32);
+			break;
+		case FLOAT64:
+			match(FLOAT64);
+			break;
 		case NOT:
 			match(NOT);
 			factor();
@@ -280,20 +372,16 @@ void factor(void) {
 }
 
 void match(int expected) {
-	if (lookahead == expected) {
+	//printf("lookahead %d\n", lookahead);
+	//printf("expected %d\n", expected);
+	if (lookahead == expected) {  // Token reconhecido
 		lookahead = gettoken(source);
-	}
-	else {
-		fprintf(stderr, "syntax error at line %i\n", linenum);
-		exit(-3);
+	} else if (lookahead == EOF) {  // Erro de fim de arquivo
+		fprintf(stderr, "premature EOF found at line %d\n", linenum);
+		exit(-1);
+	} else {  // Erro de sintaxe
+		fprintf(stderr, "syntax error at line %d\n", linenum);
+		error_counter++;
+		exit(-4);
 	}
 }
-
-// teste.pas
-// function teste(var p: integer; q: real; var r: double): integer;
-// var abc: xyz;
-//
-// begin
-// ....
-// teste:= expr
-// end;

@@ -3,9 +3,13 @@
 #pragma once
 
 extern int lookahead;
-extern void match(int);
+extern char lexeme[];
+extern void match(int expected);
+extern int gettoken(FILE *);
+extern FILE *source;
 void mypas(void);
-void idlist(void);
+int idlist(void);
+int type(void);
 void block(void);
 void vardef(void);
 void subprogs(void);
