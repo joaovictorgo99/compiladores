@@ -41,3 +41,4 @@ int symtab_append(char const *name, int lexlevel) {  // Salva símbolo na tabela
 
     return 0;
 }
+

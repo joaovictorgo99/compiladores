@@ -16,7 +16,7 @@ void skipspaces_and_comments(FILE *tape) {
 
 _skipspaces_and_comments:
     head = getc(tape);
-    printf("%d\n", head);  // peguntar pq esta dando -1 mas n retorna erro
+    printf("%d\n", head);
 
     if (isspace(head)) {
         while (isspace(head = getc(tape))) {  // Ignora caracteres de espaço, "consumindo-o"
@@ -306,3 +306,4 @@ int gettoken(FILE *source) {  // Front-end do analisador léxico
 
     return token;
 }
+

@@ -14,6 +14,7 @@ Source: Peter Grogono's "Programming in PASCAL" Addison Wesley 1980
 
 int lookahead;
 int lexlevel = 1;  // Variável para nível léxico
+int lexlevel_counter = 0;  // Variável para contador de nível léxico
 int error_counter = 0;  // Variável para contador de erros
 
 void mypas(void) {  // Programa
@@ -48,9 +49,10 @@ _idlist:
 		if (error_status == -3) {
 			/*3 anotação semântica*/
 			fprintf(stderr, "symbol already existing in the same lexlevel\n");
-			lexlevel++; // e' isso msm?
+			lexlevel++;
+			lexlevel_counter++;
 			/*3*/
-			goto _idlist; // e' isso msm?
+			goto _idlist;
 		}
 	}
 
@@ -178,6 +180,11 @@ void subprogs(void) {  // Subprograma
 		match(';');
 
 		/*6 anotação semântica*/
+		if (lexlevel_counter > 0) {
+			lexlevel = lexlevel - lexlevel_counter;  // Retorna nível léxico para o nível correto (antes dos erros)
+			lexlevel_counter = 0;  // Reseta contador
+		}
+
 		lexlevel--;
 		/*6*/
 	}
@@ -431,3 +438,4 @@ void match(int expected) {
 		/*1*/
 	}
 }
+

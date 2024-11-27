@@ -24,3 +24,4 @@ extern SYMTAB symtab[];
 extern int symtab_next_entry;
 int symtab_lookup(char const *name, int lexlevel);
 int symtab_append(char const *name, int lexlevel);
+

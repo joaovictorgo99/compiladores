@@ -10,3 +10,4 @@ clean:
 
 mostlyclean: clean
 	$(RM) *~ mypas
+
