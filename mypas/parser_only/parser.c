@@ -29,29 +29,21 @@ void mypas(void) {  // Programa
 }
 
 int idlist(void) {  // Lista de identficadores
-	/*0 anotação semântica*/
 	int first_index = symtab_next_entry;
 	int error_status;
-	/*0*/
 
 _idlist:
 	if ((error_status = symtab_append(lexeme, lexlevel))) {
-		/*1 anotação semântica*/
 		error_counter++;
-		/*1*/
 
-		/*2 anotação semântica*/
 		if (error_status == -2) {
 			fprintf(stderr, "symtab overflow\n");
 		}
-		/*2*/
 
 		if (error_status == -3) {
-			/*3 anotação semântica*/
 			fprintf(stderr, "symbol already existing in the same lexlevel\n");
 			lexlevel++;
 			lexlevel_counter++;
-			/*3*/
 			goto _idlist;
 		}
 	}
@@ -73,18 +65,14 @@ void block(void) {  // Bloco
 }
 
 int type(void) {  // Tipo
-	/*0 anotação semântica*/
 	int t = 0;
-	/*0*/
 
 	switch (lookahead) {
         case INTEGER:
         case LONG:
         case REAL:
         case DOUBLE:
-			/*1 anotação semântica*/
 			t = lookahead;
-			/*1*/
             match(lookahead);
             break;
         default:
@@ -96,28 +84,22 @@ int type(void) {  // Tipo
 }
 
 void vardef(void) {  // Variável
-	/*0 anotação semântica*/
 	int i, j, t;
-	/*0*/
 
 	if (lookahead == VAR) {
 		match(VAR);
 
 _idlist:
 		i = idlist();
-		/*1 anotação semântica*/
 		j = symtab_next_entry;
-		/*1*/
 		match(':');
 		t = type();
 
-		/*2 anotação semântica*/
 		for (i; i < j; i++) {
 			symtab[i].objtype = 0;
 			symtab[i].type = t;
 			strcpy(symtab[i].offset, "");
 		}
-		/*2*/
 
 		match(';');
 
@@ -129,9 +111,7 @@ _idlist:
 
 void subprogs(void) {  // Subprograma
 	while (lookahead == PROCEDURE || lookahead == FUNCTION) {
-		/*0 anotação semântica*/
 		int hasfunc = 0, i, j, t;
-		/*0*/
 
 		switch (lookahead) {
 			case PROCEDURE:
@@ -139,18 +119,12 @@ void subprogs(void) {  // Subprograma
 				break;
 			default:
 				match(FUNCTION);
-				/*1 anotação semântica*/
 				hasfunc = 1;
-				/*1*/
 		}
 
-		/*2 anotação semântica*/
 		lexlevel++;
-		/*2*/
 		i = idlist();
-		/*3 anotação semântica*/
 		j = symtab_next_entry;
-		/*3*/
 		
 		parmlst();
 
@@ -158,35 +132,29 @@ void subprogs(void) {  // Subprograma
 			match(':');
 			t = type();
 
-			/*4 anotação semântica*/
 			for (i; i < j; i++) {
 				symtab[i].objtype = 2;
 				symtab[i].type = t;
 				strcpy(symtab[i].offset, "");
 			}
-			/*4*/
 		} else {
-			/*5 anotação semântica*/
 			for (i; i < j; i++) {
 				symtab[i].objtype = 3;
 				symtab[i].type = t;
 				strcpy(symtab[i].offset, "");
 			}
-			/*5*/
 		}
 
 		match(';');
 		block();
 		match(';');
 
-		/*6 anotação semântica*/
 		if (lexlevel_counter > 0) {
 			lexlevel = lexlevel - lexlevel_counter;  // Retorna nível léxico para o nível correto (antes dos erros)
 			lexlevel_counter = 0;  // Reseta contador
 		}
 
 		lexlevel--;
-		/*6*/
 	}
 }
 
@@ -207,9 +175,7 @@ _stmtlst:
 }
 
 void parmlst(void) {  // Lista de parâmetros
-	/*0 anotação semântica*/
     int i, j, t;
-	/*0*/
 
 	if (lookahead == '(') {
 		match('(');
@@ -220,19 +186,15 @@ _parmlst:
 		}
 
 		i = idlist();
-		/*1 anotação semântica*/
         j = symtab_next_entry;
-		/*1*/
 		match(':');
 		t = type();
 
-		/*2 anotação semântica*/
 		for (i; i < j; i++) {
 			symtab[i].objtype = 1;
 			symtab[i].type = t;
 			strcpy(symtab[i].offset, "");
 		}
-		/*2*/
 
 		if (lookahead == ';') {
 			match(';');
@@ -241,9 +203,7 @@ _parmlst:
 
 		match(')');
 	} else {
-		/*3 anotação semântica*/
 		;
-		/*3*/
 	}
 }
 
@@ -273,9 +233,7 @@ void stmt(void) {  // Declaração
 			whilestmt();
 			break;
 		default:  // Não faz nada
-			/*0 anotação semântica 0*/
 			;
-			/*0 anotação semântica 0*/
 	}
 }
 
@@ -426,16 +384,11 @@ void match(int expected) {
 	if (lookahead == expected) {  // Token reconhecido
 		lookahead = gettoken(source);
 	} else if (lookahead == EOF) {  // Erro de fim de arquivo
-		/*0 anotação semântica*/
 		fprintf(stderr, "premature EOF found at line %d\n", linenum);
 		exit(-1);
-		/*0*/
 	} else {  // Erro de sintaxe
-		/*1 anotação semântica*/
 		fprintf(stderr, "syntax error at line %d\n", linenum);
 		error_counter++;
 		exit(-4);
-		/*1*/
 	}
 }
-
